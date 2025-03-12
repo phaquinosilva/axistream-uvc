@@ -10,3 +10,4 @@ $(CURRENT_PATH)/axi_s_if.sv
 $(CURRENT_PATH)/axi_s_pkg.sv
 
 $(CURRENT_PATH)/top_tb.sv
+
