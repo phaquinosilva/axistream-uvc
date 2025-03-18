@@ -63,7 +63,7 @@ package axis_pkg;
   `include "driver_transmitter.sv"
   `include "driver_receiver.sv"
   `include "axis_monitor.sv"
-  `include "axis_sequencer.sv"
+  `include "axis_transfer_seqr.sv"
 
   // `include "axis_vseqr.sv"
   `include "axis_agent.sv"

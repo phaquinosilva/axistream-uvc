@@ -9,7 +9,7 @@ class axis_agent extends uvm_agent;
   `uvm_component_utils(axis_agent)
 
   //  Group: Components
-  axis_sequencer m_seqr;
+  axis_transfer_seqr m_seqr;
   axis_driver    m_drv;
   axis_monitor   m_mon;
 
@@ -25,7 +25,7 @@ class axis_agent extends uvm_agent;
       `uvm_fatal("AGT_CFG", $sformatf("Error to get axis_config for %s", get_full_name()))
 
     if (m_cfg.port == TRANSMITTER) begin
-      m_seqr = axis_sequencer::type_id::create("m_seqr", this);
+      m_seqr = axis_transfer_seqr::type_id::create("m_seqr", this);
     end
     m_drv  = axis_driver::type_id::create("m_drv", this);
     m_mon = axis_monitor::type_id::create("m_mon", this);

@@ -37,7 +37,7 @@ class axis_transfer extends uvm_sequence_item;
   /*tlast
     - indicates transfer is the last in the packet
   */
-  rand bit tlast;
+  bit tlast;
 
   /* timestamp:
     - Holds the time in which the item was received.

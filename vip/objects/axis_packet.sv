@@ -1,15 +1,28 @@
+//==============================================================================
+// Project: AXI-Stream VIP
+//==============================================================================
+// Filename: spi_txn.sv
+// Description: This file comprises the packet transaction item for the AXI-S VIP.
+//    - This time holds all the data to be transferred in an packet transaction.
+//    - It also has a protected transfer queue, which holds the items for
+//      independent transfers. Those are received by the main driver for the transfer VIP.
+//==============================================================================
 
 //  Class: axis_packet
 //
 class axis_packet extends uvm_sequence_item;
-  `uvm_object_utils(axis_packet)
+//   `uvm_object_utils(axis_packet)
 
   //  Group: Variables
 
   /* p_data:
       - packet data. should be sent in transfers by transmitter driver.
+      - keep and strb are generated as well to allow full randomization,
+        when necessary.
   */
-  rand byte p_data[$];
+  rand bit [TDATA_WIDTH-1:0] p_data[$];
+  rand bit [(TDATA_WIDTH/8)-1:0] p_keep[$];
+  rand bit [(TDATA_WIDTH/8)-1:0] p_strb[$];
 
 
   /* size:
@@ -20,6 +33,9 @@ class axis_packet extends uvm_sequence_item;
   /* delay:
       - Holds a delay to be applied prior to sending this item.
       - This delay is an integer and represents a number of clock cycles.
+      NOTE: perhaps delay should be associated with the trasfer and not with
+            the packet. If that's the case, it should likely be a queue of delays
+            not a single value.
   */
   rand int unsigned delay;
 
@@ -37,7 +53,16 @@ class axis_packet extends uvm_sequence_item;
 
 
   //  Group: Constraints
+  constraint size_c {
+    solve size before p_data;
 
+    soft size inside {[1:100]};
+    p_data.size() == size;
+  }
+
+  constraint delay_c {
+    soft delay inside {[0:1000]};
+  }
 
   //  Group: Functions
   /* Function: packet2transfer
@@ -49,36 +74,36 @@ class axis_packet extends uvm_sequence_item;
   virtual function void packet2transfer();
       string report_id = $sformatf("%s.packet2trasnfer", this.report_id);
 
-      if (this.data.size() == 0)
+      if (this.p_data.size() == 0)
       `uvm_fatal(report_id, $sformatf({"The item '%s', type of '%s', currently ",
                   "has no data to be converted into trasnfers. Only call this method ",
                   "if the '%s' is ready to be converted into transfers."},
                   this.get_name(), this.get_type(), this.get_type()))
 
-      if ((this.timestamps.size() != this.data.size()) &&
+      if ((this.timestamps.size() != this.p_data.size()) &&
           (this.timestamps.size() > 0))
       `uvm_fatal(report_id, $sformatf({"The 'timestamps' queue isn't empty, but ",
                   "its size doesn't match the data queue's. ",
-                  "Data size: %0d, Timestamps size: %0d"}, this.data.size(),
+                  "Data size: %0d, Timestamps size: %0d"}, this.p_data.size(),
                   this.timestamps.size()))
 
-      transfers = new[this.data.size()];
+      transfers = new[this.p_data.size()];
 
-      foreach(this.data[i]) begin
+      foreach(this.p_data[i]) begin
           string transfer_name = $sformatf("transfer_%0d", i);
 
           transfers[i] = axis_transfer::type_id::create(transfer_name);
-          transfers[i].data = this.data[i];
+          transfers[i].tdata = this.p_data[i];
+          transfers[i].tkeep = this.p_keep[i];
+          transfers[i].tstrb = this.p_strb[i];
 
           if (this.timestamps.size() > 0) begin
               transfers[i].timestamp = this.timestamps[i];
               transfers[i].delay = i == 0 ? delay : 0;
-              transfers[i].tlast = i == data.size() - 1;
+              transfers[i].tlast = i == p_data.size() - 1;
           end
-
       end
-  endfunction : txn2beat_converter
-
+  endfunction : packet2transfer
 
 
   //  Constructor: new
