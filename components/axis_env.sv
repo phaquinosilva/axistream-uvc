@@ -1,11 +1,11 @@
-//  Class: axi_s_env
+//  Class: axis_env
 //
-class axi_s_env extends uvm_env;
-  `uvm_component_utils(axi_s_env)
+class axis_env extends uvm_env;
+  `uvm_component_utils(axis_env)
 
   //  Group: Components
-  axi_s_agent m_agt_transmitter;
-  axi_s_agent m_agt_receiver;
+  axis_agent m_agt_transmitter;
+  axis_agent m_agt_receiver;
 
   //  Group: Variables
 
@@ -14,19 +14,19 @@ class axi_s_env extends uvm_env;
     super.build_phase(phase);
     `uvm_info("START_PHASE", $sformatf("Starting build_phase for %s", get_full_name()), UVM_NONE)
 
-    m_agt_transmitter  = axi_s_agent::type_id::create("m_agt_transmitter", this);
-    m_agt_receiver = axi_s_agent::type_id::create("m_agt_receiver", this);
+    m_agt_transmitter  = axis_agent::type_id::create("m_agt_transmitter", this);
+    m_agt_receiver = axis_agent::type_id::create("m_agt_receiver", this);
 
     `uvm_info("END_PHASE", $sformatf("Finishing build_phase for %s", get_full_name()), UVM_NONE)
   endfunction : build_phase
 
   //  Constructor: new
-  function new(string name = "axi_s_env", uvm_component parent);
+  function new(string name = "axis_env", uvm_component parent);
     super.new(name, parent);
   endfunction : new
 
 
-endclass : axi_s_env
+endclass : axis_env
 
 
 

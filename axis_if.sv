@@ -1,15 +1,15 @@
 //==============================================================================
 // Project: AXI-Stream VIP
 //==============================================================================
-// Filename: axi_s_if.sv
+// Filename: axis_if.sv
 // Description: This file comprises the interface for the AXI-Stream VIP.
 //==============================================================================
 
 `timescale 1ns/1ps
-`ifndef axi_s_if__sv
-`define axi_s_if__sv
+`ifndef axis_if__sv
+`define axis_if__sv
 
-interface axi_s_if #(
+interface axis_if #(
     parameter int TADDR_WIDTH = 0,
     parameter int TDATA_WIDTH = 8,
     parameter int TDEST_WIDTH = 0,
@@ -51,5 +51,5 @@ interface axi_s_if #(
   logic [($ceil(TDATA_WIDTH/64) - 1): 0] TKEEPCHK;
   `endif  // __AXI5_STREAM__
 
-  endinterface : axi_s_if
+  endinterface : axis_if
 `endif

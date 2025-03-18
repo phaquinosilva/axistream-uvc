@@ -1,12 +1,12 @@
 //==============================================================================
 // Project: AXI-Stream VIP
 //==============================================================================
-// Filename: axi_s_transfer.sv
+// Filename: axis_transfer.sv
 // Description: This file comprises the AXI-Stream transfer item
 // for the AXI-Stream VIP.
 //==============================================================================
 
-class axi_s_transfer extends uvm_sequence_item;
+class axis_transfer extends uvm_sequence_item;
 
   //  Group: Variables
 
@@ -51,7 +51,7 @@ class axi_s_transfer extends uvm_sequence_item;
   rand int unsigned delay;
 
   // Utils
-  `uvm_object_utils_begin(axi_s_transfer)
+  `uvm_object_utils_begin(axis_transfer)
     `uvm_field_int(tdata, UVM_DEFAULT | UVM_HEX)
     `uvm_field_int(tkeep, UVM_DEFAULT | UVM_BIN)
     `uvm_field_int(delay, UVM_DEFAULT | UVM_DEC)
@@ -62,8 +62,8 @@ class axi_s_transfer extends uvm_sequence_item;
   //  Group: Functions
 
   //  Constructor: new
-  function new(string name = "axi_s_transfer");
+  function new(string name = "axis_transfer");
     super.new(name);
   endfunction : new
 
-endclass : axi_s_transfer
+endclass : axis_transfer

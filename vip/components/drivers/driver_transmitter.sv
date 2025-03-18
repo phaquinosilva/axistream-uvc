@@ -11,7 +11,7 @@
   Description:
     - run_phase for the transmitter driver.
 */
-task axi_s_driver::run_phase_transmitter();
+task axis_driver::run_phase_transmitter();
   string report_id = $sformatf("%s.run_phase_transmitter", this.report_id);
 
   `uvm_info(report_id, "Starting the run_phase for the TRANSMITTER agent.", UVM_LOW)
@@ -19,7 +19,7 @@ task axi_s_driver::run_phase_transmitter();
   vif.TVALID = 1'b0 & vif.ARESETn;
   forever begin
     // Fetch item
-    axi_s_transfer m_item;
+    axis_transfer m_item;
     seq_item_port.get_next_item(m_item);
 
     drive_transfer_transmitter(m_item);
@@ -38,7 +38,7 @@ endtask : run_phase_transmitter
     TREADY and the handshake is finished.
   - This task implements this handshake procedure and drives the current transfer.
 */
-task axi_s_driver::drive_transfer_transmitter(axi_s_transfer m_item);
+task axis_driver::drive_transfer_transmitter(axis_transfer m_item);
   // start with TVALID low during delay
   repeat (m_item.delay) @(posedge vif.ACLK);
 

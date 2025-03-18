@@ -2,18 +2,18 @@
 //
 `timescale 1ns/1ps
 `include "uvm_macros.svh"
-`include "axi_s_if.sv"
+`include "axis_if.sv"
 
 module top_tb;
   /*  package imports  */
 
   import uvm_pkg::*;
-  import axi_s_pkg::*;
+  import axis_pkg::*;
 
   logic ACLK;
   logic ARESETn;
 
-  axi_s_if #(
+  axis_if #(
       .TADDR_WIDTH(TADDR_WIDTH),
       .TDATA_WIDTH(TDATA_WIDTH),
       .TDEST_WIDTH(TDEST_WIDTH),
@@ -36,7 +36,7 @@ module top_tb;
 
   initial begin
     uvm_config_db#(vif_t)::set(null, "uvm_test_top", "vif", dut_if);
-    run_test("axi_s_base_test");
+    run_test("axis_base_test");
   end
 endmodule : top_tb
 

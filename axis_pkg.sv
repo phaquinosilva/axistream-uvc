@@ -1,7 +1,7 @@
 //==============================================================================
 // Project: AXI-Stream VIP
 //==============================================================================
-// Filename: axi_s_pkg.sv
+// Filename: axis_pkg.sv
 // Description: This file comprises the package for the AXI-Stream VIP.
 //==============================================================================
 
@@ -11,9 +11,9 @@
 // `define __AXI5_STREAM__
 // `endif
 
-//  Package: axi_s_pkg
+//  Package: axis_pkg
 //
-package axi_s_pkg;
+package axis_pkg;
 
   //  Group: UVM
   import uvm_pkg::*;
@@ -34,7 +34,7 @@ package axi_s_pkg;
   `endif // __AXI5_STREAM__
 
   // Group: Interfaces
-  `include "axi_s_if.sv"
+  `include "axis_if.sv"
 
   //  Group: Typedefs
 
@@ -43,7 +43,7 @@ package axi_s_pkg;
     RECEIVER
   } port_t;
 
-  typedef virtual axi_s_if #(
+  typedef virtual axis_if #(
     .TADDR_WIDTH(TADDR_WIDTH),
     .TDATA_WIDTH(TDATA_WIDTH),
     .TDEST_WIDTH(TDEST_WIDTH),
@@ -54,21 +54,23 @@ package axi_s_pkg;
   //  Group: Includes
 
   // Objects
-  `include "axi_s_transfer.sv"
-  `include "axi_s_config.sv"
-  `include "axi_s_transfer_seq.sv"
+  `include "axis_transfer.sv"
+  `include "axis_config.sv"
+  `include "axis_transfer_seq.sv"
 
   // Components
-  `include "axi_s_driver.sv"
+  `include "axis_driver.sv"
   `include "driver_transmitter.sv"
   `include "driver_receiver.sv"
-  `include "axi_s_monitor.sv"
-  `include "axi_s_sequencer.sv"
+  `include "axis_monitor.sv"
+  `include "axis_sequencer.sv"
 
-  // `include "axi_s_vseqr.sv"
-  `include "axi_s_agent.sv"
-  `include "axi_s_env.sv"
-  // `include "axi_s_scoreboard.sv"
-  `include "axi_s_base_test.sv"
+  // `include "axis_vseqr.sv"
+  `include "axis_agent.sv"
+  `include "axis_env.sv"
+  // `include "axis_scoreboard.sv"
+  `include "axis_base_test.sv"
 
-endpackage : axi_s_pkg
+  `include "axis_smoke_test.sv"
+
+endpackage : axis_pkg

@@ -1,12 +1,12 @@
 //==============================================================================
 // Project: AXI-Stream VIP
 //==============================================================================
-// Filename: axi_s_transfer_seq.sv
+// Filename: axis_transfer_seq.sv
 // Description: This file comprises the byte trasnfer sequence for the
 // AXI-Stream VIP.
 //==============================================================================
 
-class axi_s_transfer_seq extends uvm_sequence #(axi_s_transfer);
+class axis_transfer_seq extends uvm_sequence #(axis_transfer);
 
   //  Group: Variables
   protected string report_id = "";
@@ -35,7 +35,7 @@ class axi_s_transfer_seq extends uvm_sequence #(axi_s_transfer);
   //  Group: Functions
 
   // Utils
-  `uvm_object_utils_begin(axi_s_transfer_seq)
+  `uvm_object_utils_begin(axis_transfer_seq)
     `uvm_field_int(tdata,        UVM_DEFAULT|UVM_HEX)
     `uvm_field_int(tkeep,        UVM_DEFAULT|UVM_BIN)
     `uvm_field_int(delay,       UVM_DEFAULT|UVM_TIME)
@@ -43,7 +43,7 @@ class axi_s_transfer_seq extends uvm_sequence #(axi_s_transfer);
 
 
   //  Constructor: new
-  function new(string name = "axi_s_transfer_seq");
+  function new(string name = "axis_transfer_seq");
     super.new(name);
 
     report_id = name;
@@ -51,11 +51,11 @@ class axi_s_transfer_seq extends uvm_sequence #(axi_s_transfer);
 
   // Task: body
   task body;
-    axi_s_transfer m_item;
+    axis_transfer m_item;
     string   report_id = $sformatf("%s.body", this.report_id);
     `uvm_info(report_id, $sformatf("Started sequence '%s'.", this.get_full_name()), UVM_MEDIUM)
 
-    m_item = axi_s_transfer::type_id::create("m_item");
+    m_item = axis_transfer::type_id::create("m_item");
 
     start_item(m_item);
 
@@ -75,4 +75,4 @@ class axi_s_transfer_seq extends uvm_sequence #(axi_s_transfer);
     `uvm_info(report_id, $sformatf("Finished sequence '%s'.", this.get_full_name()), UVM_MEDIUM)
   endtask : body
 
-endclass : axi_s_transfer_seq
+endclass : axis_transfer_seq

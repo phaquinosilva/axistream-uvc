@@ -11,7 +11,7 @@
   Description:
     - run_phase for the receiver driver.
 */
-task axi_s_driver::run_phase_receiver();
+task axis_driver::run_phase_receiver();
 
   `uvm_info(report_id, "Starting the run_phase for the receiver agent.", UVM_LOW)
   vif.TREADY = 1'b0;
@@ -31,7 +31,7 @@ endtask : run_phase_receiver
     deassert TREADY at any time before a handshake is started.
     - This task finishes the handshake only when initiated by the TRANSMITTER.
 */
-task axi_s_driver::drive_transfer_receiver();
+task axis_driver::drive_transfer_receiver();
   // start not ready to receive
 
   // HANDSHAKE 2.2.3 -- asserts TREADY at the same time or after TVALID
