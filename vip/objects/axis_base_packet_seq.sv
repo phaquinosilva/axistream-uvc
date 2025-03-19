@@ -59,6 +59,18 @@ class axis_base_packet_seq extends uvm_sequence #(axis_txn);
     soft delay inside {[0:1000]};
   }
 
+  constraint strb_keep_c {
+    solve size before p_data;
+    solve size before p_keep;
+    solve size before p_strb;
+    // Guarantee TSTRB is active only if TKEEP
+    // is active for that byte position
+    // If TKEEP[x] == 0, TSTRB[x] == 0;
+    // IF TKEEP[x] == 1, TSTRB[x] == any
+    soft &((~p_keep & ~p_strb) | p_keep);
+  }
+
+
   //  Group: Functions
 
   //  Constructor: new

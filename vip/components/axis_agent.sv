@@ -8,46 +8,84 @@
 class axis_agent extends uvm_agent;
   `uvm_component_utils(axis_agent)
 
+  //  Group: Configuration object
+  axis_config    m_cfg;
+
   //  Group: Components
-  axis_transfer_seqr m_seqr;
+
+  // Packet handlers
+  axis_packet_seqr m_pkt_seqr;
+  axis_seqr_ctrl m_seqr_ctrl;
+
+  // Transfer handlers
+  axis_transfer_seqr m_transfer_seqr;
   axis_driver    m_drv;
   axis_monitor   m_mon;
 
   //  Group: Variables
-  axis_config    m_cfg;
+  protected string report_id = "";
 
   //  Group: Functions
+
   function void build_phase(uvm_phase phase);
+    string report_id = $sformatf("%s.build_phase", this.report_id);
+
     super.build_phase(phase);
-    `uvm_info("START_PHASE", $sformatf("Starting build_phase for %s", get_full_name()), UVM_NONE)
+
+    `uvm_info(report_id, $sformatf("Starting build_phase for %s",
+        this.get_full_name()), UVM_LOW)
 
     if (!uvm_config_db#(axis_config)::get(this, "", "m_cfg", m_cfg))
-      `uvm_fatal("AGT_CFG", $sformatf("Error to get axis_config for %s", get_full_name()))
+      `uvm_fatal(report_id, $sformatf("Error to get axis_config for %s",
+        this.get_full_name()))
 
-    if (m_cfg.port == TRANSMITTER) begin
-      m_seqr = axis_transfer_seqr::type_id::create("m_seqr", this);
+    // PACKET infra
+    if (m_cfg.port == TRANSMITTER && m_cfg.has_pkt_seqr) begin
+      `uvm_info(report_id,
+                $sformatf("Creating sequence controller for '%s'.",
+                this.get_full_name()), UVM_MEDIUM)
+      m_seqr_ctrl = axis_seqr_ctrl::type_id::create("m_seqr_ctrl", this);
+      `uvm_info(report_id,
+                $sformatf("Creating packet sequencer for '%s'.",
+                this.get_full_name()), UVM_MEDIUM)
+      m_pkt_seqr = axis_packet_seqr::type_id::create("m_pkt_seqr", this);
     end
-    m_drv  = axis_driver::type_id::create("m_drv", this);
+
+    // TRANSFER infra
+    if (m_cfg.port == TRANSMITTER) begin
+      `uvm_info(report_id,
+                $sformatf("Creating transfer sequencer for '%s'.",
+                this.get_full_name()), UVM_MEDIUM)
+      m_transfer_seqr = axis_transfer_seqr::type_id::create("m_transfer_seqr", this);
+    end
+
+    m_drv = axis_driver::type_id::create("m_drv", this);
     m_mon = axis_monitor::type_id::create("m_mon", this);
 
-    `uvm_info("END_PHASE", $sformatf("Finishing build_phase for %s", get_full_name()), UVM_NONE)
+    `uvm_info(report_id,
+              $sformatf("Finishing build_phase for %s",
+              this.get_full_name()), UVM_LOW)
+
   endfunction : build_phase
 
-  function void connect_phase(uvm_phase phase);
-    super.connect_phase(phase);
-    `uvm_info("START_PHASE", $sformatf("Starting connect_phase for %s", get_full_name()), UVM_NONE)
 
+  virtual function void connect_phase(uvm_phase phase);
+    super.connect_phase(phase);
     if (m_cfg.port == TRANSMITTER) begin
       m_drv.seq_item_port.connect(m_seqr.seq_item_export);
-    end
 
-    `uvm_info("END_PHASE", $sformatf("Finishing connect_phase for %s", get_full_name()), UVM_NONE)
+      if (m_cfg.has_pkt_seqr) begin
+        m_seqr_ctrl.pkt_seqr = m_pkt_seqr;
+        m_seqr_ctrl.transfer_seqr = m_transfer_seqr;
+      end
+    end
   endfunction : connect_phase
 
 
   //  Constructor: new
   function new(string name = "axis_agent", uvm_component parent);
     super.new(name, parent);
+    this.report_id = name;
   endfunction : new
 
 endclass : axis_agent

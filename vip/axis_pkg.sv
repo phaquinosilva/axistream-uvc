@@ -21,17 +21,17 @@ package axis_pkg;
 
   //  Group: Parameters
   /* AXI-Stream Properties */
-  localparam   int   TADDR_WIDTH = 0;
-  localparam   int   TDATA_WIDTH = 8*16;
-  localparam   int   TDEST_WIDTH = 0;
-  localparam   int   TUSER_WIDTH = 0;
-  localparam   int   TID_WIDTH = 0;
-  localparam   bit   Continuous_Packets = 0;
+  localparam int TADDR_WIDTH = 0;
+  localparam int TDATA_WIDTH = 8 * 16;
+  localparam int TDEST_WIDTH = 0;
+  localparam int TUSER_WIDTH = 0;
+  localparam int TID_WIDTH = 0;
+  localparam bit Continuous_Packets = 0;
 
-  `ifdef __AXI5_STREAM__
-    localparam bit   Check_Type = 0;
-    localparam bit   Wakeup_Signal = 0;
-  `endif // __AXI5_STREAM__
+`ifdef __AXI5_STREAM__
+  localparam bit Check_Type = 0;
+  localparam bit Wakeup_Signal = 0;
+`endif  // __AXI5_STREAM__
 
   // Group: Interfaces
   `include "axis_if.sv"
@@ -44,19 +44,22 @@ package axis_pkg;
   } port_t;
 
   typedef virtual axis_if #(
-    .TADDR_WIDTH(TADDR_WIDTH),
-    .TDATA_WIDTH(TDATA_WIDTH),
-    .TDEST_WIDTH(TDEST_WIDTH),
-    .TUSER_WIDTH(TUSER_WIDTH),
-    .TID_WIDTH(TID_WIDTH)
+      .TADDR_WIDTH(TADDR_WIDTH),
+      .TDATA_WIDTH(TDATA_WIDTH),
+      .TDEST_WIDTH(TDEST_WIDTH),
+      .TUSER_WIDTH(TUSER_WIDTH),
+      .TID_WIDTH  (TID_WIDTH)
   ) vif_t;
 
   //  Group: Includes
 
   // Objects
-  `include "axis_transfer.sv"
   `include "axis_config.sv"
-  `include "axis_transfer_seq.sv"
+  `include "axis_transfer.sv"
+  `include "axis_packet.sv"
+  `include "axis_base_transfer_seq.sv"
+  `include "axis_base_packet_seq.sv"
+  `include "axis_packet2transfer_seq.sv"
 
   // Components
   `include "axis_driver.sv"
@@ -64,13 +67,9 @@ package axis_pkg;
   `include "driver_receiver.sv"
   `include "axis_monitor.sv"
   `include "axis_transfer_seqr.sv"
+  `include "axis_packet_seqr.sv"
 
   // `include "axis_vseqr.sv"
   `include "axis_agent.sv"
-  `include "axis_env.sv"
-  // `include "axis_scoreboard.sv"
-  `include "axis_base_test.sv"
-
-  `include "axis_smoke_test.sv"
 
 endpackage : axis_pkg

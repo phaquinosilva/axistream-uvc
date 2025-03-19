@@ -2,16 +2,17 @@
 // Project: AXI-Stream VIP
 //==============================================================================
 // Filename: spi_txn.sv
-// Description: This file comprises the packet transaction item for the AXI-S VIP.
+// Description: This file comprises the packet item for AXIS VIP.
 //    - This time holds all the data to be transferred in an packet transaction.
 //    - It also has a protected transfer queue, which holds the items for
-//      independent transfers. Those are received by the main driver for the transfer VIP.
+//      independent transfers. These are received by the main driver for the 
+//      transfer.
 //==============================================================================
 
 //  Class: axis_packet
 //
 class axis_packet extends uvm_sequence_item;
-//   `uvm_object_utils(axis_packet)
+    // `uvm_object_utils(axis_packet)
 
   //  Group: Variables
 
@@ -56,60 +57,78 @@ class axis_packet extends uvm_sequence_item;
   constraint size_c {
     solve size before p_data;
 
-    soft size inside {[1:100]};
+    soft size inside {[1 : 100]};
     p_data.size() == size;
   }
 
-  constraint delay_c {
-    soft delay inside {[0:1000]};
-  }
+  constraint delay_c {soft delay inside {[0 : 1000]};}
 
-  //  Group: Functions
+  // Group: Functions
   /* Function: packet2transfer
-
       Description:
       - Converts the current packet into transfer and builds
       the transfer dynamic array.
   */
   virtual function void packet2transfer();
-      string report_id = $sformatf("%s.packet2trasnfer", this.report_id);
+    string report_id = $sformatf("%s.packet2trasnfer", this.report_id);
 
-      if (this.p_data.size() == 0)
-      `uvm_fatal(report_id, $sformatf({"The item '%s', type of '%s', currently ",
-                  "has no data to be converted into trasnfers. Only call this method ",
-                  "if the '%s' is ready to be converted into transfers."},
-                  this.get_name(), this.get_type(), this.get_type()))
+    if (this.p_data.size() == 0)
+      `uvm_fatal(report_id, $sformatf(
+                 {
+                   "The item '%s', type of '%s', currently ",
+                   "has no data to be converted into trasnfers. Only call this method ",
+                   "if the '%s' is ready to be converted into transfers."
+                 },
+                 this.get_name(),
+                 this.get_type(),
+                 this.get_type()
+                 ))
 
-      if ((this.timestamps.size() != this.p_data.size()) &&
-          (this.timestamps.size() > 0))
-      `uvm_fatal(report_id, $sformatf({"The 'timestamps' queue isn't empty, but ",
-                  "its size doesn't match the data queue's. ",
-                  "Data size: %0d, Timestamps size: %0d"}, this.p_data.size(),
-                  this.timestamps.size()))
+    if ((this.timestamps.size() != this.p_data.size()) && (this.timestamps.size() > 0))
+      `uvm_fatal(report_id, $sformatf(
+                 {
+                   "The 'timestamps' queue isn't empty, but ",
+                   "its size doesn't match the data queue's. ",
+                   "Data size: %0d, Timestamps size: %0d"
+                 },
+                 this.p_data.size(),
+                 this.timestamps.size()
+                 ))
 
-      transfers = new[this.p_data.size()];
+    transfers = new[this.p_data.size()];
 
-      foreach(this.p_data[i]) begin
-          string transfer_name = $sformatf("transfer_%0d", i);
+    foreach (this.p_data[i]) begin
+      string transfer_name = $sformatf("transfer_%0d", i);
 
-          transfers[i] = axis_transfer::type_id::create(transfer_name);
-          transfers[i].tdata = this.p_data[i];
-          transfers[i].tkeep = this.p_keep[i];
-          transfers[i].tstrb = this.p_strb[i];
+      transfers[i] = axis_transfer::type_id::create(transfer_name);
+      transfers[i].tdata = this.p_data[i];
+      transfers[i].tkeep = this.p_keep[i];
+      transfers[i].tstrb = this.p_strb[i];
 
-          if (this.timestamps.size() > 0) begin
-              transfers[i].timestamp = this.timestamps[i];
-              transfers[i].delay = i == 0 ? delay : 0;
-              transfers[i].tlast = i == p_data.size() - 1;
-          end
+      if (this.timestamps.size() > 0) begin
+        transfers[i].timestamp = this.timestamps[i];
+        transfers[i].delay = i == 0 ? delay : 0;
+        transfers[i].tlast = i == p_data.size() - 1;
       end
+    end
   endfunction : packet2transfer
+
+
+  virtual function get_size;
+    get_size = this.beats.size();
+  endfunction : get_size
+
+  virtual function axis_transfer get_transfer(int i);
+    if (i >= this.beats.size())
+      `uvm_fatal(this.report_id, "Transfer cannot be retrieved. Array too small for index")
+    get_transfer = this.beats[i];
+  endfunction : get_transfer
 
 
   //  Constructor: new
   function new(string name = "axis_packet");
-      super.new(name);
-  endfunction: new
+    super.new(name);
+  endfunction : new
 
   //  Function: do_copy
   // extern function void do_copy(uvm_object rhs);
@@ -126,7 +145,7 @@ class axis_packet extends uvm_sequence_item;
   //  Function: do_unpack
   // extern function void do_unpack();
 
-endclass: axis_packet
+endclass : axis_packet
 
 
 /*----------------------------------------------------------------------------*/

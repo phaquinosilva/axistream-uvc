@@ -8,10 +8,11 @@
 class axis_config extends uvm_object;
   `uvm_object_utils(axis_config)
 
-  integer                 vip_id              = 0;
+  integer                 vip_id;
 
   /* Port type: TRANSMITTER or RECEIVER */
   port_t port = TRANSMITTER;
+  bit has_pkt_seqr = 1'b1;
 
   function new(string name = "axis_config");
     super.new(name);
