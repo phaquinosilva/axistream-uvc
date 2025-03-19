@@ -28,43 +28,37 @@ class axis_driver extends uvm_driver #(axis_transfer);
 
   //  Group: Functions
   function void build_phase(uvm_phase phase);
-    `uvm_info("START_PHASE", $sformatf("build_phase for %s", get_full_name()), UVM_NONE)
+    string report = $sformatf("%s.build_phase", report_id);
+    `uvm_info(report, $sformatf("build_phase for %s", get_full_name()), UVM_NONE)
 
     super.build_phase(phase);
 
     if (!uvm_config_db#(vif_t)::get(this, "", "vif", vif))
-      `uvm_fatal("DRV_IF", $sformatf("Error to get vif for %s", get_full_name()))
+      `uvm_fatal(report, $sformatf("Error to get vif for %s", get_full_name()))
 
     if (!uvm_config_db#(axis_config)::get(this, "", "m_cfg", m_cfg))
-      `uvm_fatal("DRV_CFG", $sformatf("Error to get axis_config for %s", get_full_name()))
+      `uvm_fatal(report, $sformatf("Error to get axis_config for %s", get_full_name()))
 
-    `uvm_info("END_PHASE", $sformatf("build_phase for %s", get_full_name()), UVM_NONE)
+    `uvm_info(report, $sformatf("build_phase for %s", get_full_name()), UVM_NONE)
   endfunction : build_phase
 
 
   task run_phase(uvm_phase phase);
+    string report = $sformatf("%s.run_phase", report_id);
     super.run_phase(phase);
-    // `uvm_info("START_PHASE", $sformatf("run_phase for %s", get_full_name()), UVM_NONE)
 
     case (m_cfg.port)
       TRANSMITTER: begin
-        `uvm_info("START_PHASE",
-          $sformatf("run_phase for TRANSMITTER."),
-          UVM_LOW)
+        `uvm_info(report, $sformatf("run_phase for TRANSMITTER."), UVM_LOW)
         run_phase_transmitter();
       end  // transmitter
       RECEIVER: begin
-        `uvm_info("START_PHASE",
-          $sformatf("run_phase for RECEIVER."),
-          UVM_LOW)
+        `uvm_info(report, $sformatf("run_phase for RECEIVER."), UVM_LOW)
         run_phase_receiver();
       end  // receiver
-      default: `uvm_fatal("ERROR",
-        $sformatf("Invalid m_cfg.port for %s.",
-        this.get_full_name()))
+      default: `uvm_fatal(report, $sformatf("Invalid m_cfg.port for %s.", this.get_full_name()))
     endcase  // m_config.port
 
-    // `uvm_info("END_PHASE", $sformatf("run_phase for %s", get_full_name()), UVM_NONE)
   endtask : run_phase
 
 

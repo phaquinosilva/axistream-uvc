@@ -12,16 +12,16 @@ package axis_integ_pkg;
 
   //  Group: UVM
   import uvm_pkg::*;
-  import axis_pkg::*;
+  import axis_uvc::*;
   `include "uvm_macros.svh"
 
   // Group: UVM Components
   `include "axis_env.sv"
-  // `include "axis_vseqr.sv"
+  `include "axis_vseqr.sv"
   // `include "axis_scoreboard.sv"
 
   // Group: tests
-  // Base test
+  // Base test setup
   `include "axis_base_test.sv"
 
   // Extended tests

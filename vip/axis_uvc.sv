@@ -1,7 +1,7 @@
 //==============================================================================
 // Project: AXI-Stream VIP
 //==============================================================================
-// Filename: axis_pkg.sv
+// Filename: axis_uvc.sv
 // Description: This file comprises the package for the AXI-Stream VIP.
 //==============================================================================
 
@@ -11,9 +11,9 @@
 // `define __AXI5_STREAM__
 // `endif
 
-//  Package: axis_pkg
+//  Package: axis_uvc
 //
-package axis_pkg;
+package axis_uvc;
 
   //  Group: UVM
   import uvm_pkg::*;
@@ -68,8 +68,7 @@ package axis_pkg;
   `include "axis_monitor.sv"
   `include "axis_transfer_seqr.sv"
   `include "axis_packet_seqr.sv"
-
-  // `include "axis_vseqr.sv"
+  `include "axis_seqr_ctrl.sv"
   `include "axis_agent.sv"
 
-endpackage : axis_pkg
+endpackage : axis_uvc

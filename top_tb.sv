@@ -1,6 +1,6 @@
 //  Module: top_tb
 //
-`timescale 1ns/1ps
+`timescale 1ns / 1ps
 `include "uvm_macros.svh"
 `include "axis_if.sv"
 
@@ -8,7 +8,7 @@ module top_tb;
   /*  package imports  */
 
   import uvm_pkg::*;
-  import axis_pkg::*;
+  import axis_integ_pkg::*;
 
   logic ACLK;
   logic ARESETn;
@@ -18,7 +18,7 @@ module top_tb;
       .TDATA_WIDTH(TDATA_WIDTH),
       .TDEST_WIDTH(TDEST_WIDTH),
       .TUSER_WIDTH(TUSER_WIDTH),
-      .TID_WIDTH(TID_WIDTH)
+      .TID_WIDTH  (TID_WIDTH)
   ) dut_if (
       .ACLK(ACLK),
       .ARESETn(ARESETn)
@@ -31,7 +31,7 @@ module top_tb;
 
   initial begin
     ARESETn = 1'b0;
-    #0.5 ARESETn= 1'b1;
+    #0.5 ARESETn = 1'b1;
   end
 
   initial begin

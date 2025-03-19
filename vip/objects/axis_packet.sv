@@ -5,14 +5,14 @@
 // Description: This file comprises the packet item for AXIS VIP.
 //    - This time holds all the data to be transferred in an packet transaction.
 //    - It also has a protected transfer queue, which holds the items for
-//      independent transfers. These are received by the main driver for the 
+//      independent transfers. These are received by the main driver for the
 //      transfer.
 //==============================================================================
 
 //  Class: axis_packet
 //
 class axis_packet extends uvm_sequence_item;
-    // `uvm_object_utils(axis_packet)
+  // `uvm_object_utils(axis_packet)
 
   //  Group: Variables
 
@@ -35,8 +35,8 @@ class axis_packet extends uvm_sequence_item;
       - Holds a delay to be applied prior to sending this item.
       - This delay is an integer and represents a number of clock cycles.
       NOTE: perhaps delay should be associated with the trasfer and not with
-            the packet. If that's the case, it should likely be a queue of delays
-            not a single value.
+            the packet. If that's the case, it should likely be a queue of
+            delays not a single value.
   */
   rand int unsigned delay;
 
@@ -95,7 +95,7 @@ class axis_packet extends uvm_sequence_item;
                  this.timestamps.size()
                  ))
 
-    transfers = new[this.p_data.size()];
+    transfers = new[this.size];
 
     foreach (this.p_data[i]) begin
       string transfer_name = $sformatf("transfer_%0d", i);
@@ -115,13 +115,13 @@ class axis_packet extends uvm_sequence_item;
 
 
   virtual function get_size;
-    get_size = this.beats.size();
+    get_size = this.size;
   endfunction : get_size
 
   virtual function axis_transfer get_transfer(int i);
-    if (i >= this.beats.size())
+    if (i >= this.size)
       `uvm_fatal(this.report_id, "Transfer cannot be retrieved. Array too small for index")
-    get_transfer = this.beats[i];
+    get_transfer = this.transfers[i];
   endfunction : get_transfer
 
 
@@ -146,16 +146,4 @@ class axis_packet extends uvm_sequence_item;
   // extern function void do_unpack();
 
 endclass : axis_packet
-
-
-/*----------------------------------------------------------------------------*/
-/*  Constraints                                                               */
-/*----------------------------------------------------------------------------*/
-
-
-
-
-/*----------------------------------------------------------------------------*/
-/*  Functions                                                                 */
-/*----------------------------------------------------------------------------*/
 

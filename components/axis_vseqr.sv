@@ -1,10 +1,12 @@
-//  Class: alu_vseqr
-//
-class alu_vseqr extends uvm_component;
-  `uvm_component_utils(alu_vseqr)
+//  Class: axis_vseqr
+
+class axis_vseqr extends uvm_component;
+  `uvm_component_utils(axis_vseqr)
 
 
   //  Group: Components
+  axis_packet_seqr   m_pkt_seqr;
+  axis_transfer_seqr m_transfer_seqr;
 
 
   //  Group: Variables
@@ -13,9 +15,9 @@ class alu_vseqr extends uvm_component;
   //  Group: Functions
 
   //  Constructor: new
-  function new(string name = "alu_vseqr", uvm_component parent);
+  function new(string name = "axis_vseqr", uvm_component parent);
     super.new(name, parent);
   endfunction : new
 
 
-endclass : alu_vseqr
+endclass : axis_vseqr
