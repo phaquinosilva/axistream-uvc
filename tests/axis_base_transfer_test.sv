@@ -1,7 +1,7 @@
-//  Class: axis_base_test
+//  Class: axis_base_transfer_test
 //
-class axis_base_test extends uvm_test;
-  `uvm_component_utils(axis_base_test)
+class axis_base_transfer_test extends uvm_test;
+  `uvm_component_utils(axis_base_transfer_test)
 
   //  Group: Components
   axis_env m_env;
@@ -59,9 +59,9 @@ class axis_base_test extends uvm_test;
   endfunction : end_of_elaboration_phase
 
   //  Constructor: new
-  function new(string name = "axis_base_test", uvm_component parent);
+  function new(string name = "axis_base_transfer_test", uvm_component parent);
     super.new(name, parent);
     this.report_id = name;
   endfunction : new
 
-endclass : axis_base_test
+endclass : axis_base_transfer_test

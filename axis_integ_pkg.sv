@@ -24,11 +24,12 @@ package axis_integ_pkg;
   `include "axis_env.sv"
 
   // Group: tests
-  // Base test setup
-  `include "axis_test_base.sv"
-  // `include "axis_base_test.sv"
+  // transfer test setup
+  `include "axis_base_transfer_test.sv"
+  `include "axis_smoke_transfer_test.sv"
 
-  // Extended tests
-  // `include "axis_smoke_test.sv"
+
+  // packet_tests
+  `include "axis_test_base.sv"
 
 endpackage : axis_integ_pkg
