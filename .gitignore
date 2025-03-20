@@ -1,2 +1,5 @@
-.simvision/*
-scripts/*
+# simulation logs and files
+*simvision*
+*xcelium.d*
+*.history
+*.log

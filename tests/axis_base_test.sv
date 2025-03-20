@@ -26,7 +26,7 @@ class axis_base_test extends uvm_test;
 
     m_cfg_transmitter.port = TRANSMITTER;
     m_cfg_transmitter.vip_id = 0;
-    m_cfg_transmitter.has_pkt_seqr = 1'b1;
+    m_cfg_transmitter.has_pkt_seqr = 1'b0;
 
     m_cfg_receiver.port = RECEIVER;
     m_cfg_receiver.vip_id = 1;

@@ -34,9 +34,11 @@ package axis_uvc;
 `endif  // __AXI5_STREAM__
 
   // Group: Interfaces
-  `include "axis_if.sv"
+  // `include "axis_if.sv"
 
   //  Group: Typedefs
+  typedef class axis_transfer_seqr;
+  typedef class axis_packet_seqr;
 
   typedef enum bit {
     TRANSMITTER,
@@ -44,11 +46,11 @@ package axis_uvc;
   } port_t;
 
   typedef virtual axis_if #(
-      .TADDR_WIDTH(TADDR_WIDTH),
-      .TDATA_WIDTH(TDATA_WIDTH),
-      .TDEST_WIDTH(TDEST_WIDTH),
-      .TUSER_WIDTH(TUSER_WIDTH),
-      .TID_WIDTH  (TID_WIDTH)
+    .TADDR_WIDTH(TADDR_WIDTH),
+    .TDATA_WIDTH(TDATA_WIDTH),
+    .TDEST_WIDTH(TDEST_WIDTH),
+    .TUSER_WIDTH(TUSER_WIDTH),
+    .TID_WIDTH  (TID_WIDTH)
   ) vif_t;
 
   //  Group: Includes
@@ -56,19 +58,19 @@ package axis_uvc;
   // Objects
   `include "axis_config.sv"
   `include "axis_transfer.sv"
+  `include "axis_transfer_seq.sv"
   `include "axis_packet.sv"
-  `include "axis_base_transfer_seq.sv"
-  `include "axis_base_packet_seq.sv"
+  `include "axis_packet_seq.sv"
   `include "axis_packet2transfer_seq.sv"
 
   // Components
+  `include "axis_transfer_seqr.sv"
+  `include "axis_packet_seqr.sv"
+  `include "axis_seqr_ctrl.sv"
   `include "axis_driver.sv"
   `include "driver_transmitter.sv"
   `include "driver_receiver.sv"
   `include "axis_monitor.sv"
-  `include "axis_transfer_seqr.sv"
-  `include "axis_packet_seqr.sv"
-  `include "axis_seqr_ctrl.sv"
   `include "axis_agent.sv"
 
 endpackage : axis_uvc

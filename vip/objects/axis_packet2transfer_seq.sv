@@ -8,16 +8,16 @@ class axis_packet2transfer_seq extends uvm_sequence #(axis_transfer);
   // Group: variables
   protected string report_id = "";
 
-  /* packet_seqr:
+  /* pkt_seqr:
   *   - handle to packet sequencer
   */
-  axis_packet_seqr packet_seqr = null;
+  axis_packet_seqr pkt_seqr = null;
 
   /* Task: body
   *  Description:
   *   - Checks whether axis_packet_seqr was initialized correctly
   *   - Triggers a forever loop that retrieves each packet item started
-  *   in the packet_seqr here.
+  *   in the pkt_seqr here.
   *   - Incoming packet items are converted into transfers using the
   *   converter.
   *   - Generated transfers are started in the beat_seqr.
@@ -25,27 +25,31 @@ class axis_packet2transfer_seq extends uvm_sequence #(axis_transfer);
   task body;
     string report = $sformatf("%s.body", this.report_id);
 
-    if ((this.packet_seqr == null))
-      `uvm_fatal(report, $sformatf("packet_seqr was not initialized correctly"))
+    if ((this.pkt_seqr == null))
+      `uvm_fatal(report, $sformatf("pkt_seqr was not initialized correctly"))
 
     forever begin
       axis_packet pkt;
-      packet_seqr.get_next_item(pkt);
+      pkt_seqr.get_next_item(pkt);
+
       `uvm_info(report_id, $sformatf("Received item '%s' in %s", pkt.get_name(),
           this.get_full_name()), UVM_FULL)
-
       `uvm_info(report_id, $sformatf("Received item: \n%s", pkt.sprint()),
           UVM_FULL)
 
       pkt.packet2transfer();
 
-      for (int i = 0; pkg.get_size(); i++) begin
-        axis_transfer trans = pkt.get_transfer(i);
-        start_item(trans);
+      for (int i = 0; pkt.get_size(); i++) begin
+        axis_transfer transfer = pkt.get_transfer(i);
+
+        start_item(transfer);
         `uvm_info(report_id, $sformatf("Sending transfer item: \n%s",
-          transfer.sprint()), UVM_DEBUG)
+            transfer.sprint()), UVM_NONE)
+
+        finish_item(transfer);
       end
 
+      pkt_seqr.item_done();
     end
   endtask : body
 

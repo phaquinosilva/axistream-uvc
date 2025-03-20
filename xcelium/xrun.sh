@@ -1,10 +1,13 @@
 #!/bin/bash
 
+module load xcelium
+
 export UVMHOME="/tools/cadence/XCELIUM2309/tools/methodology/UVM/CDNS-1.1d/"
 
 echo "THIS: $(dirname -- $(readlink -fn -- "$0"))"
 
 export CURRENT_PATH=$(dirname $(dirname -- $(readlink -fn -- "$0")))
+export VIP_INTEG=$(dirname -- $(readlink -fn -- "$0"))
 
 echo "PARENT: $CURRENT_PATH"
 

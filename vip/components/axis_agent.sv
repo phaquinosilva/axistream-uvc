@@ -70,16 +70,19 @@ class axis_agent extends uvm_agent;
 
 
   virtual function void connect_phase(uvm_phase phase);
+    string report_id = $sformatf("%s.connect_phase", this.report_id);
+    `uvm_info(report_id, $sformatf("Starting connect_phase for %s", this.get_full_name()), UVM_LOW)
     super.connect_phase(phase);
     if (m_cfg.port == TRANSMITTER) begin
-      m_drv.seq_item_port.connect(m_seqr.seq_item_export);
+      m_drv.seq_item_port.connect(m_transfer_seqr.seq_item_export);
 
       // CTRL: add handles to each seqr
       if (m_cfg.has_pkt_seqr) begin
-        m_seqr_ctrl.pkt_seqr = m_pkt_seqr;
+        m_seqr_ctrl.pkt_seqr      = m_pkt_seqr;
         m_seqr_ctrl.transfer_seqr = m_transfer_seqr;
       end
     end
+    `uvm_info(report_id, $sformatf("Finishing connect_phase for %s", this.get_full_name()), UVM_LOW)
   endfunction : connect_phase
 
 

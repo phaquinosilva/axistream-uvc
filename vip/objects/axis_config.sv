@@ -6,7 +6,10 @@
 //==============================================================================
 
 class axis_config extends uvm_object;
-  `uvm_object_utils(axis_config)
+ 
+  function new(string name = "axis_config");
+    super.new(name);
+  endfunction : new
 
   integer                 vip_id;
 
@@ -14,8 +17,10 @@ class axis_config extends uvm_object;
   port_t port = TRANSMITTER;
   bit has_pkt_seqr = 1'b1;
 
-  function new(string name = "axis_config");
-    super.new(name);
-  endfunction : new
+  `uvm_object_utils_begin(axis_config)
+    `uvm_field_int      (vip_id, UVM_DEFAULT|UVM_BIN)
+    `uvm_field_enum     (port_t, port, UVM_DEFAULT)
+    `uvm_field_int      (has_pkt_seqr, UVM_DEFAULT|UVM_BIN)
+  `uvm_object_utils_end
 
 endclass : axis_config

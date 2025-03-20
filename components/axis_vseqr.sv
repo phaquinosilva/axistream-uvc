@@ -1,6 +1,6 @@
 //  Class: axis_vseqr
 
-class axis_vseqr extends uvm_component;
+class axis_vseqr extends uvm_sequencer;
   `uvm_component_utils(axis_vseqr)
 
 

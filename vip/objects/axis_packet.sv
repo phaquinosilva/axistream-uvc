@@ -12,8 +12,6 @@
 //  Class: axis_packet
 //
 class axis_packet extends uvm_sequence_item;
-  // `uvm_object_utils(axis_packet)
-
   //  Group: Variables
 
   /* p_data:
@@ -53,6 +51,8 @@ class axis_packet extends uvm_sequence_item;
   protected axis_transfer transfers[];
 
 
+  //  Group: Variables
+  protected string report_id = "";
   //  Group: Constraints
   constraint size_c {
     solve size before p_data;
@@ -63,6 +63,17 @@ class axis_packet extends uvm_sequence_item;
 
   constraint delay_c {soft delay inside {[0 : 1000]};}
 
+  `uvm_object_utils_begin(axis_packet)
+    `uvm_field_queue_int    (p_data,        UVM_DEFAULT|UVM_HEX)
+    `uvm_field_queue_int    (p_keep,        UVM_DEFAULT|UVM_HEX)
+    `uvm_field_queue_int    (p_strb,        UVM_DEFAULT|UVM_HEX)
+    `uvm_field_int          (size,        UVM_DEFAULT|UVM_DEC)
+    `uvm_field_queue_int    (timestamps,  UVM_DEFAULT|UVM_TIME)
+    `uvm_field_int          (delay,       UVM_DEFAULT|UVM_DEC)
+    `uvm_field_array_object (transfers,       UVM_DEFAULT)
+  `uvm_object_utils_end
+
+
   // Group: Functions
   /* Function: packet2transfer
       Description:
@@ -71,6 +82,8 @@ class axis_packet extends uvm_sequence_item;
   */
   virtual function void packet2transfer();
     string report_id = $sformatf("%s.packet2trasnfer", this.report_id);
+    `uvm_info(report_id, "Started packet2trasnfer conversion.", UVM_NONE)
+
 
     if (this.p_data.size() == 0)
       `uvm_fatal(report_id, $sformatf(
@@ -111,6 +124,7 @@ class axis_packet extends uvm_sequence_item;
         transfers[i].tlast = i == p_data.size() - 1;
       end
     end
+    `uvm_info(report_id, "Finishing packet2trasnfer conversion.", UVM_NONE)
   endfunction : packet2transfer
 
 
@@ -119,8 +133,13 @@ class axis_packet extends uvm_sequence_item;
   endfunction : get_size
 
   virtual function axis_transfer get_transfer(int i);
-    if (i >= this.size)
-      `uvm_fatal(this.report_id, "Transfer cannot be retrieved. Array too small for index")
+    string report_id = $sformatf("%s.get_transfer", this.report_id);
+
+    if (!(i < this.transfers.size()))
+      `uvm_fatal(report_id,
+                $sformatf({"The index provided can't be retrieved from the transfers ",
+                "array. Array size: %0d, index given: %0d."}, this.transfers.size(),
+                i))
     get_transfer = this.transfers[i];
   endfunction : get_transfer
 
@@ -128,6 +147,7 @@ class axis_packet extends uvm_sequence_item;
   //  Constructor: new
   function new(string name = "axis_packet");
     super.new(name);
+    report_id = name;
   endfunction : new
 
   //  Function: do_copy

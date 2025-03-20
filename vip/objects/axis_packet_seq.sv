@@ -1,11 +1,11 @@
 //==============================================================================
 // Project: AXI-Stream VIP
 //==============================================================================
-// Filename: axis_base_packet_seq.sv
+// Filename: axis_packet_seq.sv
 // Description: This file comprises the base sequence for the AXI-Stream VIP.
 //==============================================================================
 
-class axis_base_packet_seq extends uvm_sequence #(axis_txn);
+class axis_packet_seq extends uvm_sequence #(axis_packet);
 
   //  Group: Variables
   protected string                        report_id     = "";
@@ -35,7 +35,7 @@ class axis_base_packet_seq extends uvm_sequence #(axis_txn);
   rand int unsigned                       delay;
 
   // Utils
-  `uvm_object_utils_begin(axis_base_packet_seq)
+  `uvm_object_utils_begin(axis_packet_seq)
     `uvm_field_queue_int(p_data, UVM_DEFAULT | UVM_HEX)
     `uvm_field_queue_int(p_keep, UVM_DEFAULT | UVM_HEX)
     `uvm_field_queue_int(p_strb, UVM_DEFAULT | UVM_HEX)
@@ -51,25 +51,27 @@ class axis_base_packet_seq extends uvm_sequence #(axis_txn);
 
     soft size inside {[1 : 100]};
     p_data.size() == size;
+    p_keep.size() == size;
+    p_strb.size() == size;
   }
 
   constraint delay_c {soft delay inside {[0 : 1000]};}
 
   constraint strb_keep_c {
-    solve size before p_data;
     solve size before p_keep;
     solve size before p_strb;
     // Guarantee TSTRB is active only if TKEEP
     // is active for that byte position
     // If TKEEP[x] == 0, TSTRB[x] == 0;
     // IF TKEEP[x] == 1, TSTRB[x] == any
-    soft &((~p_keep & ~p_strb) | p_keep);
+    foreach(p_keep[i])
+      soft &((~p_keep[i] & ~p_strb[i]) | p_keep[i]);
   }
 
   //  Group: Functions
 
   //  Constructor: new
-  function new(string name = "axis_base_packet_seq");
+  function new(string name = "axis_packet_seq");
     super.new(name);
 
     report_id = name;
@@ -105,5 +107,5 @@ class axis_base_packet_seq extends uvm_sequence #(axis_txn);
 
   endtask : body
 
-endclass : axis_base_packet_seq
+endclass : axis_packet_seq
 

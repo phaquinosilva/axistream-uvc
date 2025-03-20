@@ -85,7 +85,7 @@ class axis_test_base extends uvm_component;
   virtual function void build_phase_create_components(uvm_phase phase);
     string report_id = $sformatf("%s.build_phase_create_components", this.report_id);
 
-    m_env = axis_integ_env::type_id::create("m_env", this);
+    m_env = axis_env::type_id::create("m_env", this);
 
   endfunction : build_phase_create_components
 
@@ -152,23 +152,20 @@ class axis_test_base extends uvm_component;
     `uvm_info(get_name(), $sformatf("Starting run_phase for %s, objection raised.",
                                     this.get_full_name()), UVM_NONE)
 
-    fork
-      slave_sequences();
-    join_none
 
     if (!std::randomize(num_samples) with {num_samples inside {[2 : 10]};})
       `uvm_fatal(report_id, "Unable to randomize num_samples")
 
     `uvm_info(report_id, $sformatf("Running %0d samples", num_samples), UVM_NONE)
 
-
-    // Start the test
-    repeat (num_samples) begin
-      axis_base_txn_seq seq;
-      seq = axis_base_txn_seq::type_id::create("seq");
+    repeat (1) begin
+      axis_packet_seq seq;
+      seq = axis_packet_seq::type_id::create("seq");
       if (!seq.randomize()) `uvm_fatal(report_id, "Unable to randomize seq.")
-      seq.start(m_env.m_vseqr.m_txn_seqr[0]);
+      seq.start(m_env.m_vseqr.m_pkt_seqr);
     end
+
+    #1000;
 
     phase.drop_objection(this);
 
@@ -176,28 +173,5 @@ class axis_test_base extends uvm_component;
                                     this.get_full_name()), UVM_NONE)
   endtask : run_phase
 
-
-  /* Task: slave_sequences
-
-    Description:
-      - This task as a forever loop to keep calling slave sequences when MISO is available.
-  */
-  task slave_sequences;
-
-    forever begin
-      axis_transfer_seq slave_seq;
-
-      slave_seq = axis_transfer_seq::type_id::create("slave_seq");
-
-      if (!slave_seq.randomize() with {delay == 0;})
-        `uvm_fatal(report_id, "Unable to randomize slave_seq.");
-
-      `uvm_info(report_id, $sformatf("Starting slave sequence:\n%s", slave_seq.sprint()), UVM_DEBUG)
-
-      slave_seq.start(m_env.m_vseqr.m_beat_seqr[1]);
-
-    end
-
-  endtask : slave_sequences
 
 endclass : axis_test_base

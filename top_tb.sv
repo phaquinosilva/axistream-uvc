@@ -8,6 +8,7 @@ module top_tb;
   /*  package imports  */
 
   import uvm_pkg::*;
+  import axis_uvc::*;
   import axis_integ_pkg::*;
 
   logic ACLK;
@@ -35,8 +36,8 @@ module top_tb;
   end
 
   initial begin
-    uvm_config_db#(vif_t)::set(null, "uvm_test_top", "vif", dut_if);
-    run_test("axis_base_test");
+    uvm_config_db#(vif_t)::set(null, "uvm_test_top.m_env", "vif", dut_if);
+    run_test("axis_test_base");
   end
 endmodule : top_tb
 

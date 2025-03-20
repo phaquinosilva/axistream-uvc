@@ -61,6 +61,7 @@ class axis_monitor extends uvm_monitor;
   //  Constructor: new
   function new(string name = "axis_monitor", uvm_component parent);
     super.new(name, parent);
+    this.report_id = name;
   endfunction : new
 
 endclass : axis_monitor

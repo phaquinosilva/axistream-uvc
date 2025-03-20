@@ -7,7 +7,7 @@
 //==============================================================================
 
 class axis_seqr_ctrl extends uvm_component;
-    `uvm_component_utils(axis_seqr_ctrl);
+    `uvm_component_utils(axis_seqr_ctrl)
 
     //  Group: Configuration Object(s)
     axis_config m_cfg;
@@ -31,10 +31,10 @@ class axis_seqr_ctrl extends uvm_component;
         string report_id = $sformatf("%s.build_phase", this.report_id);
         super.build_phase(phase);
 
-        if (!uvm_config_db#(axis_config)::get(this, "", "cfg", m_cfg))
-        `uvm_fatal(report_id,
-                  $sformatf("Unable to retrieve configuration item for '%s'.",
-                  this.get_full_name()))
+        if (!uvm_config_db#(axis_config)::get(this, "", "m_cfg", m_cfg))
+          `uvm_fatal(report_id,
+                    $sformatf("Unable to retrieve configuration item for '%s'.",
+                    this.get_full_name()))
     endfunction: build_phase
 
 
@@ -46,7 +46,7 @@ class axis_seqr_ctrl extends uvm_component;
       `uvm_info(report_id, $sformatf("<run_phase> started for %s.",
       this.get_full_name), UVM_LOW)
 
-      if (pkt_seqr == null)
+      if (this.pkt_seqr == null)
         `uvm_fatal(report_id,
                   $sformatf("txn_seqr not initialized correctly for %s.",
                   this.get_full_name()))
@@ -56,7 +56,7 @@ class axis_seqr_ctrl extends uvm_component;
                   $sformatf("beat_seqr not initialized correctly for %s.",
                   this.get_full_name()))
 
-      seq = axis_packet2transfer_seq::type_id::create("packet2transfer_seq");
+      seq = axis_packet2transfer_seq::type_id::create("axis_packet2transfer_seq");
       seq.pkt_seqr = pkt_seqr;
       seq.start(transfer_seqr);
 

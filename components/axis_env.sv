@@ -10,7 +10,7 @@ class axis_env extends uvm_env;
   axis_agent m_agt_transmitter;
   axis_agent m_agt_receiver;
 
-  virtual vif_t vif;
+  vif_t vif;
 
   axis_vseqr m_vseqr;
 
@@ -31,9 +31,21 @@ class axis_env extends uvm_env;
 
     `uvm_info(report, $sformatf("Starting build_phase for %s", get_full_name()), UVM_NONE)
 
+    m_vseqr           = axis_vseqr::type_id::create("m_vseqr", this);
     m_agt_transmitter = axis_agent::type_id::create("m_agt_transmitter", this);
     m_agt_receiver    = axis_agent::type_id::create("m_agt_receiver", this);
-    m_vseqr           = axis_vseqr::type_id::create("m_vseqr", this);
+
+    // NOTE: figure out why I had to fetch them after setting it on the db on the test_base
+    uvm_config_db#(axis_config)::get(this, "m_agt_transmitter*", "m_cfg", m_agt_transmitter.m_cfg);
+    uvm_config_db#(axis_config)::get(this, "m_agt_receiver*", "m_cfg", m_agt_receiver.m_cfg);
+
+    `uvm_info(report_id,
+              $sformatf("Transmitter Configuration:\n%s", m_agt_transmitter.m_cfg.sprint()),
+              UVM_MEDIUM)
+
+    `uvm_info(report_id,
+              $sformatf("Receiver Configuration:\n%s", m_agt_receiver.m_cfg.sprint()),
+              UVM_MEDIUM)
 
     if (!uvm_config_db#(vif_t)::get(this, "", "vif", vif))
       `uvm_fatal(report, $sformatf("Unable to get vif for %s", get_full_name()))
