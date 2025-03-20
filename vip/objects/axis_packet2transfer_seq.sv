@@ -39,7 +39,7 @@ class axis_packet2transfer_seq extends uvm_sequence #(axis_transfer);
 
       pkt.packet2transfer();
 
-      for (int i = 0; pkt.get_size(); i++) begin
+      for (int i = 0; i < pkt.get_size(); i++) begin
         axis_transfer transfer = pkt.get_transfer(i);
 
         start_item(transfer);

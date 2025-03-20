@@ -35,13 +35,15 @@ task axis_driver::drive_transfer_receiver();
   // start not ready to receive
 
   // HANDSHAKE 2.2.3 -- asserts TREADY at the same time or after TVALID
-  // @(posedge vif.ACLK);
-  wait(vif.TVALID);
+  wait(vif.TVALID)
+
+  `uvm_info(report_id, "Finish handshake", UVM_FULL)
   vif.TREADY = 1'b1;
 
   // complete transfer
   @(posedge vif.ACLK);
   // wait for tvalid to go to low
+  `uvm_info(report_id, "Waiting for transfer to complete", UVM_FULL)
   wait(!vif.TVALID);
   vif.TREADY = 1'b0;
 

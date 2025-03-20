@@ -50,6 +50,8 @@ class axis_monitor extends uvm_monitor;
       item = axis_transfer::type_id::create("item");
       item.tdata = vif.TDATA;
       item.tkeep = vif.TKEEP;
+      item.tstrb = vif.TSTRB;
+      item.tlast = vif.TLAST;
       `uvm_info(report, $sformatf("MON_%s: ITEM\n%s", m_cfg.port.name, item.sprint()), UVM_FULL)
       mon_analysis_port.write(item);
     end

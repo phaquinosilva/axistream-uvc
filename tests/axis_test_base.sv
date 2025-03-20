@@ -158,6 +158,9 @@ class axis_test_base extends uvm_component;
 
     `uvm_info(report_id, $sformatf("Running %0d samples", num_samples), UVM_NONE)
 
+    // NOTE: THIS IS A WORKAROUND -- wait for reset to end
+    #1;
+
     repeat (1) begin
       axis_packet_seq seq;
       seq = axis_packet_seq::type_id::create("seq");
@@ -165,7 +168,7 @@ class axis_test_base extends uvm_component;
       seq.start(m_env.m_vseqr.m_pkt_seqr);
     end
 
-    #1000;
+    #10000;
 
     phase.drop_objection(this);
 

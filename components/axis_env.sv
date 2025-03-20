@@ -12,7 +12,7 @@ class axis_env extends uvm_env;
 
   vif_t vif;
 
-  axis_vseqr m_vseqr;
+  axis_vseqr m_vseqr = null;
 
   //  Group: Variables
   string report_id = "";

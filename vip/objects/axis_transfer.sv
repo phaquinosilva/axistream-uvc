@@ -54,6 +54,8 @@ class axis_transfer extends uvm_sequence_item;
   `uvm_object_utils_begin(axis_transfer)
     `uvm_field_int(tdata, UVM_DEFAULT | UVM_HEX)
     `uvm_field_int(tkeep, UVM_DEFAULT | UVM_BIN)
+    `uvm_field_int(tstrb, UVM_DEFAULT | UVM_DEC)
+    `uvm_field_int(tlast, UVM_DEFAULT | UVM_BIN)
     `uvm_field_int(delay, UVM_DEFAULT | UVM_DEC)
     `uvm_field_int(timestamp, UVM_DEFAULT | UVM_TIME)
   `uvm_object_utils_end

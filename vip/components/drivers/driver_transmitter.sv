@@ -14,7 +14,7 @@
 task axis_driver::run_phase_transmitter();
   string report_id = $sformatf("%s.run_phase_transmitter", this.report_id);
 
-  `uvm_info(report_id, "Starting the run_phase for the TRANSMITTER agent.", UVM_LOW)
+  `uvm_info(report_id, "Started run_phase for driver.", UVM_LOW)
 
   vif.TVALID = 1'b0 & vif.ARESETn;
   forever begin
@@ -26,6 +26,7 @@ task axis_driver::run_phase_transmitter();
 
     seq_item_port.item_done();
   end
+
 endtask : run_phase_transmitter
 
 
@@ -41,21 +42,26 @@ endtask : run_phase_transmitter
 task axis_driver::drive_transfer_transmitter(axis_transfer m_item);
   // start with TVALID low during delay
   repeat (m_item.delay) @(posedge vif.ACLK);
+  `uvm_info(report_id, $sformatf("Driving the item:\n%s", m_item.sprint()), UVM_FULL)
 
-  // Make information available on TDATA
+  // Put data on bus
   vif.TDATA = m_item.tdata;
   vif.TKEEP = m_item.tkeep;
   vif.TSTRB = m_item.tstrb;
+  vif.TLAST = m_item.tlast;
 
   // Assert TVALID required to be before clock edge
   vif.TVALID = 1'b1 & vif.ARESETn;
   // Wait for TREADY from receiver
   // NOTE: cannot drive TVALID = 0 until a TREADY is received
+  `uvm_info(report_id, $sformatf(
+            "Waiting for handshake to drive item: \nTVALID=%d ARESETn=%d at time=%d", 
+            vif.TVALID, vif.ARESETn, $time),
+            UVM_FULL)
   wait(vif.TREADY);
 
   // Wait for clock edge to turn control signals off
   @(posedge vif.ACLK);
   vif.TVALID = 1'b0;
 
-  `uvm_info(report_id, $sformatf("Driving the item:\n%s", m_item.sprint()), UVM_FULL)
 endtask : drive_transfer_transmitter
