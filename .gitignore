@@ -3,3 +3,5 @@
 *xcelium.d*
 *.history
 *.log
+*cov_work*
+*imc*

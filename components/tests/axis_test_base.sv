@@ -16,8 +16,8 @@ class axis_test_base extends uvm_component;
 
   //  Group: Components
   axis_env m_env;
-  axis_config m_cfg_transmitter;
-  axis_config m_cfg_receiver;
+  axis_config m_cfg_transmitter[];
+  axis_config m_cfg_receiver[];
 
   //  Group: Variables
   protected string report_id;
@@ -68,11 +68,11 @@ class axis_test_base extends uvm_component;
 
     m_cfg_transmitter.port = TRANSMITTER;
     m_cfg_transmitter.vip_id = 0;
-    m_cfg_transmitter.has_pkt_seqr = 1'b1;
+    m_cfg_transmitter.has_pkt_seq = 1'b1;
 
     m_cfg_receiver.port = RECEIVER;
     m_cfg_receiver.vip_id = 1;
-    m_cfg_receiver.has_pkt_seqr = 1'b0;
+    m_cfg_receiver.has_pkt_seq = 1'b0;
 
   endfunction : build_phase_create_cfg
 
@@ -147,28 +147,35 @@ class axis_test_base extends uvm_component;
   task run_phase(uvm_phase phase);
     int num_samples;
 
-    phase.raise_objection(this);
+
+    axis_packet_seq seq;
+    seq = axis_packet_seq::type_id::create("seq");
+
+    // axis_transfer_seq seq;
+    // seq = axis_transfer_seq::type_id::create("seq");
 
     `uvm_info(get_name(), $sformatf("Starting run_phase for %s, objection raised.",
                                     this.get_full_name()), UVM_NONE)
 
+    // if (!std::randomize(num_samples) with {num_samples inside {[2 : 10]};})
+    //   `uvm_fatal(report_id, "Unable to randomize num_samples")
 
-    if (!std::randomize(num_samples) with {num_samples inside {[2 : 10]};})
-      `uvm_fatal(report_id, "Unable to randomize num_samples")
+    // `uvm_info(report_id, $sformatf("Running %0d samples", num_samples), UVM_NONE)
 
-    `uvm_info(report_id, $sformatf("Running %0d samples", num_samples), UVM_NONE)
+    phase.raise_objection(this);
 
-    // NOTE: THIS IS A WORKAROUND -- wait for reset to end
-    #1;
-
-    repeat (1) begin
-      axis_packet_seq seq;
-      seq = axis_packet_seq::type_id::create("seq");
-      if (!seq.randomize()) `uvm_fatal(report_id, "Unable to randomize seq.")
-      seq.start(m_env.m_vseqr.m_pkt_seqr);
+    repeat (10) begin
+      if (!seq.randomize() with {size == 10;})
+        // if (!seq.randomize())
+        `uvm_fatal(
+        report_id, "Unable to randomize seq.")
+      // NOTE: THIS IS A WORKAROUND -- wait for reset to end
+      `uvm_info(report_id, $sformatf("Randomized packet %s", seq.sprint()), UVM_NONE)
+      seq.start(m_env.m_agt_transmitter.m_transfer_seqr);
+      #10;
     end
 
-    #10000;
+    #400;
 
     phase.drop_objection(this);
 

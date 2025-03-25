@@ -1,22 +1,11 @@
-//==============================================================================
-// Project: AXI-Stream VIP
-//==============================================================================
-// Filename: axis_agent.sv
-// Description: This file comprises the AXI-Stream agent for the AXI-Stream VIP.
-//==============================================================================
-
-class axis_agent extends uvm_agent;
-  `uvm_component_utils(axis_agent)
-
-  //  Group: Configuration object
-  axis_config        m_cfg           = null;
+m_cfg           = null;
 
   //  Group: Components
   vif_t              vif;
 
   // Packet handlers
-  axis_packet_seqr   m_pkt_seqr      = null;
-  axis_seqr_ctrl     m_seqr_ctrl     = null;
+  // axis_packet_seqr   m_pkt_seqr      = null;
+  // axis_seqr_ctrl     m_seqr_ctrl     = null;
 
   // Transfer handlers
   axis_transfer_seqr m_transfer_seqr = null;
@@ -43,18 +32,8 @@ class axis_agent extends uvm_agent;
     if (!uvm_config_db#(axis_config)::get(this, "", "m_cfg", m_cfg))
       `uvm_fatal(report_id, $sformatf("Error to get axis_config for %s", this.get_full_name()))
 
-    // PACKET infra
-    if (m_cfg.port == TRANSMITTER && m_cfg.has_pkt_seqr) begin
-      `uvm_info(report_id, $sformatf("Creating sequence controller for '%s'.",
-                                     this.get_full_name()), UVM_MEDIUM)
-      m_seqr_ctrl = axis_seqr_ctrl::type_id::create("m_seqr_ctrl", this);
-      `uvm_info(report_id, $sformatf("Creating packet sequencer for '%s'.", this.get_full_name()),
-                UVM_MEDIUM)
-      m_pkt_seqr = axis_packet_seqr::type_id::create("m_pkt_seqr", this);
-    end
-
     // TRANSFER infra
-    if (m_cfg.port == TRANSMITTER) begin
+    if (m_cfg.device_type == TRANSMITTER) begin
       `uvm_info(report_id, $sformatf("Creating transfer sequencer for '%s'.", this.get_full_name()),
                 UVM_MEDIUM)
       m_transfer_seqr = axis_transfer_seqr::type_id::create("m_transfer_seqr", this);
@@ -73,15 +52,10 @@ class axis_agent extends uvm_agent;
     string report_id = $sformatf("%s.connect_phase", this.report_id);
     `uvm_info(report_id, $sformatf("Starting connect_phase for %s", this.get_full_name()), UVM_LOW)
     super.connect_phase(phase);
-    if (m_cfg.port == TRANSMITTER) begin
+    if (m_cfg.device_type == TRANSMITTER) begin
       m_drv.seq_item_port.connect(m_transfer_seqr.seq_item_export);
-
-      // CTRL: add handles to each seqr
-      if (m_cfg.has_pkt_seqr) begin
-        m_seqr_ctrl.pkt_seqr      = m_pkt_seqr;
-        m_seqr_ctrl.transfer_seqr = m_transfer_seqr;
-      end
     end
+
     `uvm_info(report_id, $sformatf("Finishing connect_phase for %s", this.get_full_name()), UVM_LOW)
   endfunction : connect_phase
 

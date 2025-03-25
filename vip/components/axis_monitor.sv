@@ -43,16 +43,17 @@ class axis_monitor extends uvm_monitor;
       axis_transfer item;
 
       // TRANSMITTER monitor already knows the data is valid before TREADY is asserted
-      if (m_cfg.port == TRANSMITTER) wait (vif.TVALID);
-      else wait (vif.TVALID && vif.TREADY);
+      wait (vif.TVALID && vif.TREADY);
 
-      @(posedge vif.ACLK);
+      @(negedge vif.ACLK);
       item = axis_transfer::type_id::create("item");
-      item.tdata = vif.TDATA;
-      item.tkeep = vif.TKEEP;
-      item.tstrb = vif.TSTRB;
-      item.tlast = vif.TLAST;
-      `uvm_info(report, $sformatf("MON_%s: ITEM\n%s", m_cfg.port.name, item.sprint()), UVM_FULL)
+      if (m_cfg.TDATA_ENABLE) item.tdata = vif.TDATA;
+      if (m_cfg.TKEEP_ENABLE) item.tkeep = vif.TKEEP;
+      if (m_cfg.TLAST_ENABLE) item.tlast = vif.TLAST;
+      if (m_cfg.TSTRB_ENABLE) item.tstrb = vif.TSTRB;
+      item.timestamp = $time;
+      `uvm_info(report, $sformatf("MON_%s: ITEM\n%s", m_cfg.device_type.name, item.sprint()),
+                UVM_FULL)
       mon_analysis_port.write(item);
     end
 

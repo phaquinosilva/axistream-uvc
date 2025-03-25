@@ -47,7 +47,7 @@ class axis_driver extends uvm_driver #(axis_transfer);
     string report = $sformatf("%s.run_phase", report_id);
     super.run_phase(phase);
 
-    case (m_cfg.port)
+    case (m_cfg.device_type)
       TRANSMITTER: begin
         `uvm_info(report, $sformatf("run_phase for TRANSMITTER."), UVM_LOW)
         run_phase_transmitter();
@@ -56,7 +56,8 @@ class axis_driver extends uvm_driver #(axis_transfer);
         `uvm_info(report, $sformatf("run_phase for RECEIVER."), UVM_LOW)
         run_phase_receiver();
       end  // receiver
-      default: `uvm_fatal(report, $sformatf("Invalid m_cfg.port for %s.", this.get_full_name()))
+      default:
+      `uvm_fatal(report, $sformatf("Invalid m_cfg.device_type for %s.", this.get_full_name()))
     endcase  // m_config.port
 
   endtask : run_phase
@@ -64,10 +65,13 @@ class axis_driver extends uvm_driver #(axis_transfer);
 
   // Group: TRANSMITTER methods
   extern task run_phase_transmitter();
-  extern task drive_transfer_transmitter(axis_transfer m_item);
+  extern task main_transmitter();
+  extern task reset_transmitter();
+  extern task drive_transfer_transmitter(axis_transfer item);
 
   // Group: RECEIVER methods
   extern task run_phase_receiver();
+  extern task reset_receiver();
   extern task drive_transfer_receiver();
 
 endclass : axis_driver

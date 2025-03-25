@@ -12,7 +12,7 @@ class axis_transfer_seq extends uvm_sequence #(axis_transfer);
   protected string report_id = "";
 
   // Data lanes
-  rand bit [TDATA_WIDTH-1:0] tdata ;
+  rand bit [TDATA_WIDTH-1:0] tdata;
 
   // Byte qualifiers
   rand bit [(TDATA_WIDTH/8)-1:0] tkeep;
@@ -36,9 +36,10 @@ class axis_transfer_seq extends uvm_sequence #(axis_transfer);
 
   // Utils
   `uvm_object_utils_begin(axis_transfer_seq)
-    `uvm_field_int(tdata,        UVM_DEFAULT|UVM_HEX)
-    `uvm_field_int(tkeep,        UVM_DEFAULT|UVM_BIN)
-    `uvm_field_int(delay,       UVM_DEFAULT|UVM_TIME)
+    `uvm_field_int(tdata, UVM_DEFAULT | UVM_HEX)
+    `uvm_field_int(tkeep, UVM_DEFAULT | UVM_BIN)
+    `uvm_field_int(tstrb, UVM_DEFAULT | UVM_BIN)
+    `uvm_field_int(delay, UVM_DEFAULT | UVM_TIME)
   `uvm_object_utils_end
 
 
@@ -52,7 +53,7 @@ class axis_transfer_seq extends uvm_sequence #(axis_transfer);
   // Task: body
   task body;
     axis_transfer m_item;
-    string   report_id = $sformatf("%s.body", this.report_id);
+    string report_id = $sformatf("%s.body", this.report_id);
     `uvm_info(report_id, $sformatf("Started sequence '%s'.", this.get_full_name()), UVM_MEDIUM)
 
     m_item = axis_transfer::type_id::create("m_item");
@@ -60,11 +61,11 @@ class axis_transfer_seq extends uvm_sequence #(axis_transfer);
     start_item(m_item);
 
     if (!m_item.randomize() with {
-        tdata == local::tdata;
-        tkeep == local::tkeep;
-        tstrb == local::tstrb;
-        delay == local::delay;
-      })
+          tdata == local:: tdata;
+          tkeep == local:: tkeep;
+          tstrb == local:: tstrb;
+          delay == local:: delay;
+        })
       `uvm_fatal(report_id, $sformatf("Unable to randomize m_item for %s", this.get_full_name()))
 
     `uvm_info(report_id, $sformatf("Randomized m_item for '%s'.", this.get_full_name()), UVM_MEDIUM)

@@ -1,8 +1,7 @@
-//  Class: axis_smoke_transfer_test
+//  Class: axis_transfer_smoke_test
 
-class axis_smoke_transfer_test extends axis_base_transfer_test;
-  `uvm_component_utils(axis_smoke_transfer_test)
-
+class axis_transfer_smoke_test extends axis_transfer_base_test;
+  `uvm_component_utils(axis_transfer_smoke_test)
 
   task run_phase(uvm_phase phase);
     axis_transfer_seq seq;
@@ -27,11 +26,10 @@ class axis_smoke_transfer_test extends axis_base_transfer_test;
     `uvm_info(report, $sformatf("Finishing run_phase for %s", get_full_name()), UVM_NONE)
   endtask : run_phase
 
-
   //  Constructor: new
-  function new(string name = "axis_smoke_transfer_test", uvm_component parent);
+  function new(string name = "axis_transfer_smoke_test", uvm_component parent);
     super.new(name, parent);
     this.report_id = name;
   endfunction : new
 
-endclass : axis_smoke_transfer_test
+endclass : axis_transfer_smoke_test

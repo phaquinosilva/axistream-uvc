@@ -19,14 +19,14 @@ package axis_integ_pkg;
 
 
   // Group: UVM Components
-  `include "axis_vseqr.sv"
+  // `include "axis_vseq.sv"
   // `include "axis_scoreboard.sv"
   `include "axis_env.sv"
 
   // Group: tests
   // transfer test setup
-  `include "axis_base_transfer_test.sv"
-  `include "axis_smoke_transfer_test.sv"
+  `include "axis_transfer_base_test.sv"
+  `include "axis_transfer_smoke_test.sv"
 
 
   // packet_tests

@@ -34,10 +34,11 @@ class axis_transfer extends uvm_sequence_item;
   */
   rand bit [(TDATA_WIDTH/8)-1:0] tstrb;
 
-  /*tlast
-    - indicates transfer is the last in the packet
+  /* tlast
+    - indicates transfer is the last in the packet.
+    - defaults to 1 for cases where no concept of packet is present.
   */
-  bit tlast;
+  bit tlast = 1;
 
   /* timestamp:
     - Holds the time in which the item was received.
@@ -54,7 +55,7 @@ class axis_transfer extends uvm_sequence_item;
   `uvm_object_utils_begin(axis_transfer)
     `uvm_field_int(tdata, UVM_DEFAULT | UVM_HEX)
     `uvm_field_int(tkeep, UVM_DEFAULT | UVM_BIN)
-    `uvm_field_int(tstrb, UVM_DEFAULT | UVM_DEC)
+    `uvm_field_int(tstrb, UVM_DEFAULT | UVM_BIN)
     `uvm_field_int(tlast, UVM_DEFAULT | UVM_BIN)
     `uvm_field_int(delay, UVM_DEFAULT | UVM_DEC)
     `uvm_field_int(timestamp, UVM_DEFAULT | UVM_TIME)

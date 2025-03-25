@@ -16,18 +16,43 @@ task axis_driver::run_phase_transmitter();
 
   `uvm_info(report_id, "Started run_phase for driver.", UVM_LOW)
 
-  vif.TVALID = 1'b0 & vif.ARESETn;
   forever begin
-    // Fetch item
-    axis_transfer m_item;
-    seq_item_port.get_next_item(m_item);
-
-    drive_transfer_transmitter(m_item);
-
-    seq_item_port.item_done();
+    reset_transmitter();
+    fork
+      main_transmitter();
+      @(negedge vif.ARESETn);
+    join
+    disable fork;
   end
 
+  `uvm_info(report_id, "Finished run_phase for driver.", UVM_LOW)
 endtask : run_phase_transmitter
+
+
+task axis_driver::reset_transmitter;
+  vif.TVALID = 1'b0;
+  @(posedge vif.ARESETn);
+endtask: reset_transmitter
+
+
+task axis_driver::main_transmitter;
+  axis_transfer item;
+
+  fork
+    forever begin
+      // Fetch item
+      seq_item_port.get_next_item(item);
+      drive_transfer_transmitter(item);
+      seq_item_port.item_done();
+    end
+    begin
+      @(negedge vif.ARESETn);
+      seq_item_port.item_done();
+    end
+  join_any
+  disable fork;
+
+endtask: main_transmitter
 
 
 /* Task: drive_transfer_transmitter
@@ -39,29 +64,27 @@ endtask : run_phase_transmitter
     TREADY and the handshake is finished.
   - This task implements this handshake procedure and drives the current transfer.
 */
-task axis_driver::drive_transfer_transmitter(axis_transfer m_item);
-  // start with TVALID low during delay
-  repeat (m_item.delay) @(posedge vif.ACLK);
-  `uvm_info(report_id, $sformatf("Driving the item:\n%s", m_item.sprint()), UVM_FULL)
+task axis_driver::drive_transfer_transmitter(axis_transfer item);
+  `uvm_info(report_id, $sformatf("Driving the item:\n%s", item.sprint()), UVM_FULL)
+  repeat (item.delay) @(posedge vif.ACLK);
 
-  // Put data on bus
-  vif.TDATA = m_item.tdata;
-  vif.TKEEP = m_item.tkeep;
-  vif.TSTRB = m_item.tstrb;
-  vif.TLAST = m_item.tlast;
+  begin : DRIVE_BUS
+    vif.TVALID = 1'b1;
+    vif.TDATA = item.tdata;
+    vif.TKEEP = item.tkeep;
+    vif.TSTRB = item.tstrb;
+    vif.TLAST = item.tlast;
+  end
 
-  // Assert TVALID required to be before clock edge
-  vif.TVALID = 1'b1 & vif.ARESETn;
-  // Wait for TREADY from receiver
   // NOTE: cannot drive TVALID = 0 until a TREADY is received
   `uvm_info(report_id, $sformatf(
-            "Waiting for handshake to drive item: \nTVALID=%d ARESETn=%d at time=%d", 
+            "Waiting for handshake to drive item: \nTVALID=%d ARESETn=%d at time=%d",
             vif.TVALID, vif.ARESETn, $time),
             UVM_FULL)
-  wait(vif.TREADY);
+  do begin
+    @(posedge vif.ACLK);
+  end while (!vif.TREADY);
 
-  // Wait for clock edge to turn control signals off
-  @(posedge vif.ACLK);
-  vif.TVALID = 1'b0;
-
+  // turn control signals off after handshake
+  vif.TVALID = 0;
 endtask : drive_transfer_transmitter

@@ -21,11 +21,10 @@ package axis_uvc;
 
   //  Group: Parameters
   /* AXI-Stream Properties */
-  localparam int TADDR_WIDTH = 0;
-  localparam int TDATA_WIDTH = 8 * 16;
-  localparam int TDEST_WIDTH = 0;
-  localparam int TUSER_WIDTH = 0;
-  localparam int TID_WIDTH = 0;
+  localparam int TDATA_WIDTH = 8;
+  localparam int TDEST_WIDTH = 8;
+  localparam int TUSER_WIDTH = 1;
+  localparam int TID_WIDTH = 8;
   localparam bit Continuous_Packets = 0;
 
 `ifdef __AXI5_STREAM__
@@ -34,24 +33,28 @@ package axis_uvc;
 `endif  // __AXI5_STREAM__
 
   // Group: Interfaces
-  // `include "axis_if.sv"
+  typedef virtual axis_if #(
+      .TDATA_WIDTH(TDATA_WIDTH),
+      .TDEST_WIDTH(TDEST_WIDTH),
+      .TUSER_WIDTH(TUSER_WIDTH),
+      .TID_WIDTH  (TID_WIDTH)
+  ) vif_t;
 
   //  Group: Typedefs
-  typedef class axis_transfer_seqr;
-  typedef class axis_packet_seqr;
+  typedef class axis_transfer_seqr;  // for compilation
 
+  // Stream types
+  typedef enum {
+    CONT_ALIGNED,
+    CONT_UNALIGNED,
+    SPARSE
+  } stream_t;
+
+  // Agent type
   typedef enum bit {
     TRANSMITTER,
     RECEIVER
   } port_t;
-
-  typedef virtual axis_if #(
-    .TADDR_WIDTH(TADDR_WIDTH),
-    .TDATA_WIDTH(TDATA_WIDTH),
-    .TDEST_WIDTH(TDEST_WIDTH),
-    .TUSER_WIDTH(TUSER_WIDTH),
-    .TID_WIDTH  (TID_WIDTH)
-  ) vif_t;
 
   //  Group: Includes
 
@@ -59,14 +62,10 @@ package axis_uvc;
   `include "axis_config.sv"
   `include "axis_transfer.sv"
   `include "axis_transfer_seq.sv"
-  `include "axis_packet.sv"
   `include "axis_packet_seq.sv"
-  `include "axis_packet2transfer_seq.sv"
 
   // Components
   `include "axis_transfer_seqr.sv"
-  `include "axis_packet_seqr.sv"
-  `include "axis_seqr_ctrl.sv"
   `include "axis_driver.sv"
   `include "driver_transmitter.sv"
   `include "driver_receiver.sv"
