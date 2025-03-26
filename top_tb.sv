@@ -1,5 +1,5 @@
 //  Module: top_tb
-//
+
 `timescale 1ns / 100ps
 `include "uvm_macros.svh"
 `include "axis_if.sv"
@@ -18,7 +18,6 @@ module top_tb;
   logic ACLK;
   logic ARESETn;
 
-
   axis_if #(
       .TDATA_WIDTH(TDATA_WIDTH),
       .TDEST_WIDTH(TDEST_WIDTH),
@@ -31,6 +30,7 @@ module top_tb;
 
 
 `ifdef AXI_FIFO_TEST
+
   parameter int DEPTH = 16;
 
   axis_if #(
@@ -46,19 +46,20 @@ module top_tb;
 
   axis_fifo #(
       .DEPTH(DEPTH),
-      .DATA_WIDTH(TDATA_WIDTH),
-      .ID_WIDTH(TID_WIDTH),
-      .DEST_WIDTH(TDEST_WIDTH),
-      .USER_WIDTH(TUSER_WIDTH),
-      .OUTPUT_FIFO_ENABLE(1'b0)
+      .DATA_W(TDATA_WIDTH),
+      .ID_W(TID_WIDTH),
+      .DEST_W(TDEST_WIDTH),
+      .USER_W(TUSER_WIDTH),
+      .OUTPUT_FIFO_EN(0)
   ) dut (
       .clk(ACLK),
-      .rst(ARESETn),
+      .rst(!ARESETn),
       /*
       * AXI input
       */
       .s_axis_tdata(dut_s_if.TDATA),
       .s_axis_tkeep(dut_s_if.TKEEP),
+      .s_axis_tstrb(dut_s_if.TSTRB),
       .s_axis_tvalid(dut_s_if.TVALID),
       .s_axis_tready(dut_s_if.TREADY),
       .s_axis_tlast(dut_s_if.TLAST),
@@ -70,6 +71,7 @@ module top_tb;
       */
       .m_axis_tdata(dut_m_if.TDATA),
       .m_axis_tkeep(dut_m_if.TKEEP),
+      .m_axis_tstrb(dut_m_if.TSTRB),
       .m_axis_tvalid(dut_m_if.TVALID),
       .m_axis_tready(dut_m_if.TREADY),
       .m_axis_tlast(dut_m_if.TLAST),
@@ -90,8 +92,16 @@ module top_tb;
   end
 
   initial begin
-    uvm_config_db#(vif_t)::set(null, "uvm_test_top.m_env", "vif_tr", dut_s_if);
     uvm_config_db#(vif_t)::set(null, "uvm_test_top.m_env", "vif_re", dut_m_if);
+
+`ifdef AXI_FIFO_TEST
+    `uvm_info("top_tb", $sformatf("AXI_FIFO_TEST set"), UVM_NONE)
+    uvm_config_db#(vif_t)::set(null, "uvm_test_top.m_env", "vif_tr", dut_s_if);
+`else
+    `uvm_info("top_tb", $sformatf("AXI_FIFO_TEST not set"), UVM_NONE)
+    uvm_config_db#(vif_t)::set(null, "uvm_test_top.m_env", "vif_tr", dut_m_if);
+`endif
+
     run_test();
   end
 
