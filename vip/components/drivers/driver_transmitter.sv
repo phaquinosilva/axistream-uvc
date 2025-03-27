@@ -17,7 +17,7 @@ task axis_driver::run_phase_transmitter();
   `uvm_info(report_id, "Started run_phase for driver.", UVM_LOW)
 
   forever begin
-    reset_transmitter();
+    if (!vif.ARESETn) reset_transmitter();
     fork
       main_transmitter();
       @(negedge vif.ARESETn);
@@ -32,7 +32,7 @@ endtask : run_phase_transmitter
 task axis_driver::reset_transmitter;
   vif.TVALID = 1'b0;
   @(posedge vif.ARESETn);
-endtask: reset_transmitter
+endtask : reset_transmitter
 
 
 task axis_driver::main_transmitter;
@@ -40,19 +40,18 @@ task axis_driver::main_transmitter;
 
   fork
     forever begin
-      // Fetch item
       seq_item_port.get_next_item(item);
       drive_transfer_transmitter(item);
       seq_item_port.item_done();
     end
-    begin
+    begin : RESET_ITEM
       @(negedge vif.ARESETn);
       seq_item_port.item_done();
     end
   join_any
   disable fork;
 
-endtask: main_transmitter
+endtask : main_transmitter
 
 
 /* Task: drive_transfer_transmitter
@@ -70,21 +69,25 @@ task axis_driver::drive_transfer_transmitter(axis_transfer item);
 
   begin : DRIVE_BUS
     vif.TVALID = 1'b1;
-    vif.TDATA = item.tdata;
-    vif.TKEEP = item.tkeep;
-    vif.TSTRB = item.tstrb;
-    vif.TLAST = item.tlast;
+    vif.TDATA  = item.tdata;
+    vif.TKEEP  = item.tkeep;
+    vif.TSTRB  = item.tstrb;
+    vif.TLAST  = item.tlast;
   end
 
   // NOTE: cannot drive TVALID = 0 until a TREADY is received
-  `uvm_info(report_id, $sformatf(
-            "Waiting for handshake to drive item: \nTVALID=%d ARESETn=%d at time=%d",
-            vif.TVALID, vif.ARESETn, $time),
-            UVM_FULL)
-  do begin
-    @(posedge vif.ACLK);
-  end while (!vif.TREADY);
+  `uvm_info(report_id,
+            $sformatf("Waiting for handshake to drive item: \nTVALID=%d ARESETn=%d at time=%d",
+                      vif.TVALID, vif.ARESETn, $time), UVM_FULL)
+
+  // Supports all possible handshake combinations
+  // * TVALID before TREADY
+  // * TVALID after TREADY
+  // * TVALID and TREADY at the same time
+  if (!vif.TREADY) @(posedge vif.TREADY);
 
   // turn control signals off after handshake
+  @(posedge vif.ACLK);
   vif.TVALID = 0;
 endtask : drive_transfer_transmitter
+

@@ -32,7 +32,7 @@ class axis_env extends uvm_env;
 
     `uvm_info(report, $sformatf("Starting build_phase for %s", get_full_name()), UVM_NONE)
 
-    // m_vseqr           = axis_vseqr::type_id::create("m_vseqr", this);
+    // m_vgeqr           = axis_vseqr::type_id::create("m_vseqr", this);
 
     m_agt_transmitter = axis_agent::type_id::create("m_agt_transmitter", this);
     m_agt_receiver    = axis_agent::type_id::create("m_agt_receiver", this);

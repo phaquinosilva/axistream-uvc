@@ -14,6 +14,7 @@
 task axis_driver::run_phase_receiver();
   `uvm_info(report_id, "Starting the run_phase for the receiver agent.", UVM_LOW)
 
+  vif.TREADY = 1'b0;
   forever begin
     reset_receiver();
     fork
@@ -28,7 +29,7 @@ endtask : run_phase_receiver
 
 
 task axis_driver::reset_receiver;
-endtask: reset_receiver
+endtask : reset_receiver
 
 
 /* Task: drive_transfer_receiver
@@ -42,18 +43,17 @@ endtask: reset_receiver
 */
 task axis_driver::drive_transfer_receiver;
   // start not ready to receive
-  vif.TREADY = 1'b0;
 
   // HANDSHAKE 2.2.3 -- asserts TREADY at the same clock or after TVALID
-  while (!vif.TVALID) begin
-    @(vif.ACLK);
-  end
+  if (!vif.TVALID) @(posedge vif.TVALID);
 
   `uvm_info(report_id, "Finish handshake", UVM_FULL)
   vif.TREADY = 1'b1;
 
-  // Wait for transfer completion to drive TREADY low
-  @(posedge vif.ACLK);
+  // Wait for transfer completion to drive TREADY low 
+  // TVALID may only be deasserted after transfer finished
+  @(negedge vif.TVALID);
   vif.TREADY = 1'b0;
 
 endtask : drive_transfer_receiver
+

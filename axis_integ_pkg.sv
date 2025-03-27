@@ -30,6 +30,6 @@ package axis_integ_pkg;
 
 
   // packet_tests
-  `include "axis_test_base.sv"
+  // `include "axis_test_base.sv"
 
 endpackage : axis_integ_pkg

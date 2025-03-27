@@ -16,7 +16,7 @@ seed=$(((RANDOM % 999999999 )  + 100000000))
 echo "Running seed: $seed"
 
 VERBOSITY="+UVM_VERBOSITY=UVM_MEDIUM"
-TEST="axis_test_base"
+TEST="axis_transfer_smoke_test"
 GUI=""
 
 if [ $1 ]; then
@@ -31,6 +31,6 @@ if [ $1 ]; then
 fi
 
 xrun -lwdgen \
-  -access rwc -uvm -uvmhome $UVMHOME \
+  -linedebu -access rwc -uvm -uvmhome $UVMHOME \
   -svseed $seed -sv -f file_list.f \
   +UVM_TESTNAME=${TEST} ${VERBOSITY} ${GUI} 

@@ -1,7 +1,9 @@
 # simulation logs and files
 *simvision*
 *xcelium.d*
+*waves.shm*
 *.history
 *.log
 *cov_work*
 *imc*
+*uvmtclcomm*

@@ -1,11 +1,18 @@
-m_cfg           = null;
+//==============================================================================
+// Project: AXI-Stream VIP
+//==============================================================================
+// Filename: axis_agent.sv
+// Description: This file comprises the AXI-Stream agent for the AXI-Stream VIP.
+//==============================================================================
+
+class axis_agent extends uvm_agent;
+  `uvm_component_utils(axis_agent)
+
+  //  Group: Configuration object
+  axis_config        m_cfg           = null;
 
   //  Group: Components
   vif_t              vif;
-
-  // Packet handlers
-  // axis_packet_seqr   m_pkt_seqr      = null;
-  // axis_seqr_ctrl     m_seqr_ctrl     = null;
 
   // Transfer handlers
   axis_transfer_seqr m_transfer_seqr = null;
@@ -50,13 +57,16 @@ m_cfg           = null;
 
   virtual function void connect_phase(uvm_phase phase);
     string report_id = $sformatf("%s.connect_phase", this.report_id);
-    `uvm_info(report_id, $sformatf("Starting connect_phase for %s", this.get_full_name()), UVM_LOW)
     super.connect_phase(phase);
+
     if (m_cfg.device_type == TRANSMITTER) begin
+      `uvm_info(report_id, $sformatf("Starting connect_phase for %s", this.get_full_name()),
+                UVM_LOW)
       m_drv.seq_item_port.connect(m_transfer_seqr.seq_item_export);
+      `uvm_info(report_id, $sformatf("Finishing connect_phase for %s", this.get_full_name()),
+                UVM_LOW)
     end
 
-    `uvm_info(report_id, $sformatf("Finishing connect_phase for %s", this.get_full_name()), UVM_LOW)
   endfunction : connect_phase
 
 

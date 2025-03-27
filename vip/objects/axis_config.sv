@@ -12,10 +12,10 @@ class axis_config extends uvm_object;
   integer  vip_id;
 
   /* Port type: TRANSMITTER or RECEIVER */
-  port_t   device_type   = TRANSMITTER;
+  port_t   device_type    = TRANSMITTER;
 
   /* Stream type: CONT_ALIGNED, CONT_UNALIGNED or SPARSE. */
-  stream_t stream_type   = CONT_ALIGNED;
+  stream_t stream_type    = CONT_ALIGNED;
 
   /* Sequence config:
   *  - if both use_packets and use_frames are deasserted
@@ -23,27 +23,27 @@ class axis_config extends uvm_object;
   *  - used to setup subscribers for packets and frames in
   *    both transmitters or receivers.
   *  NOTE: monitor for transfers is always set, use_transfers
-  *    for completeness.
+  *    for completeness. the flag determines whether the analysis
+  *    port is used in the scoreboard.
   */
-  bit      use_packets   = 1;
-  bit      use_frames    = 0;
-  bit      use_transfers = !(use_packets | use_frames);
+  bit      use_packets;
+  bit      use_frames;
+  bit      use_transfers;
 
   /* Signal config:
   *   - will disable generation, driver and monitor captures
   *     for deasserted signals.
   */
   // Optional signals
-  bit      TDATA_ENABLE  = 1;
-  bit      TKEEP_ENABLE  = (TDATA_WIDTH > 7);
+  bit      TDATA_ENABLE;
+  bit      TKEEP_ENABLE;
 
   // Conditional signal
-  bit      TLAST_ENABLE  = use_packets | use_frames;
-  bit      TSTRB_ENABLE  = 0;
-  bit      TID_ENABLE    = 0;
-  bit      TDEST_ENABLE  = 0;
-  bit      TUSER_ENABLE  = 0;
-
+  bit      TLAST_ENABLE;
+  bit      TSTRB_ENABLE;
+  bit      TID_ENABLE;
+  bit      TDEST_ENABLE;
+  bit      TUSER_ENABLE;
 
   // AXI5-Stream specific signals
 `ifdef __AXI5_STREAM__
@@ -57,6 +57,7 @@ class axis_config extends uvm_object;
     `uvm_field_enum(stream_t, stream_type, UVM_DEFAULT)
     `uvm_field_int(use_packets, UVM_DEFAULT | UVM_BIN)
     `uvm_field_int(use_frames, UVM_DEFAULT | UVM_BIN)
+    `uvm_field_int(use_transfers, UVM_DEFAULT | UVM_BIN)
     `uvm_field_int(TDATA_ENABLE, UVM_DEFAULT | UVM_BIN)
     `uvm_field_int(TKEEP_ENABLE, UVM_DEFAULT | UVM_BIN)
     `uvm_field_int(TLAST_ENABLE, UVM_DEFAULT | UVM_BIN)
@@ -70,6 +71,32 @@ class axis_config extends uvm_object;
 `endif
   `uvm_object_utils_end
 
+
+  /* set_options:
+  *   - helper function to set flags in the config item.
+  */
+  function set_options(port_t device_type = TRANSMITTER, stream_t stream_type = CONT_ALIGNED,
+                       bit use_packets = 1, bit use_frames = 0, bit use_transfers = 0,
+                       bit TDATA_ENABLE = 1, bit TKEEP_ENABLE = (TDATA_WIDTH > 7),
+                       bit TLAST_ENABLE = 1, bit TSTRB_ENABLE = 0, bit TID_ENABLE = 0,
+                       bit TDEST_ENABLE = 0, bit TUSER_ENABLE = 0);
+    /* UVC configuration */
+    this.device_type   = device_type;
+    this.stream_type   = stream_type;
+    this.use_packets   = use_packets;
+    this.use_frames    = use_frames;
+    // always set use_transfers to 1 if use_packets and use_frames are deasserted.
+    this.use_transfers = !(use_packets | use_frames) | use_transfers;
+
+    /* Bus configuration */
+    this.TDATA_ENABLE  = TDATA_ENABLE;
+    this.TKEEP_ENABLE  = TKEEP_ENABLE;
+    this.TLAST_ENABLE  = TLAST_ENABLE;
+    this.TSTRB_ENABLE  = TSTRB_ENABLE;
+    this.TID_ENABLE    = TID_ENABLE;
+    this.TDEST_ENABLE  = TDEST_ENABLE;
+    this.TUSER_ENABLE  = TUSER_ENABLE;
+  endfunction
 
   function new(string name = "axis_config");
     super.new(name);

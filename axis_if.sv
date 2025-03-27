@@ -21,7 +21,7 @@ interface axis_if #(
 
   /* Group: INTERFACE SIGNALS [AXI4-Stream] */
   // Required
-  wire TVALID;
+  logic TVALID;
   logic TREADY;
   // Optional
   logic [(TDATA_WIDTH - 1):0] TDATA;
@@ -51,9 +51,9 @@ interface axis_if #(
   logic [($ceil(TDATA_WIDTH/64) - 1):0] TKEEPCHK;
 `endif  // __AXI5_STREAM__
 
-  modport transmitter(input TREADY, output TVALID, TDATA, TKEEP, TSTRB, TLAST, TID, TDEST, TUSER);
+  // modport transmitter(input TREADY, output TVALID, TDATA, TKEEP, TSTRB, TLAST, TID, TDEST, TUSER);
 
-  modport receiver(output TREADY, input TVALID, TDATA, TKEEP, TSTRB, TLAST, TID, TDEST, TUSER);
+  // modport receiver(output TREADY, input TVALID, TDATA, TKEEP, TSTRB, TLAST, TID, TDEST, TUSER);
 
 endinterface : axis_if
 `endif
