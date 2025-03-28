@@ -5,7 +5,7 @@
 `include "axis_if.sv"
 
 `ifndef AXI_FIFO_TEST
-`define AXI_FIFO_TEST 
+// `define AXI_FIFO_TEST 
 `endif
 
 module top_tb;
@@ -92,15 +92,18 @@ module top_tb;
   end
 
   initial begin
-    uvm_config_db#(vif_t)::set(null, "uvm_test_top.m_env", "vif_re", dut_m_if);
 
+    // input FIFO
 `ifdef AXI_FIFO_TEST
     `uvm_info("top_tb", $sformatf("AXI_FIFO_TEST set"), UVM_NONE)
-    uvm_config_db#(vif_t)::set(null, "uvm_test_top.m_env", "vif_tr", dut_s_if);
+    uvm_config_db#(vif_t)::set(null, "uvm_test_top.m_env", "vifs[0]", dut_s_if);
 `else
     `uvm_info("top_tb", $sformatf("AXI_FIFO_TEST not set"), UVM_NONE)
-    uvm_config_db#(vif_t)::set(null, "uvm_test_top.m_env", "vif_tr", dut_m_if);
+    uvm_config_db#(vif_t)::set(null, "uvm_test_top.m_env", "vifs[0]", dut_m_if);
 `endif
+
+    // output FIFO
+    uvm_config_db#(vif_t)::set(null, "uvm_test_top.m_env", "vifs[1]", dut_m_if);
 
     run_test();
   end

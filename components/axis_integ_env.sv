@@ -1,17 +1,13 @@
-//  Class: axis_env
-//
-class axis_env extends uvm_env;
-  `uvm_component_utils(axis_env)
+
+class axis_integ_env extends uvm_env;
+  `uvm_component_utils(axis_integ_env)
 
   //  Group: Configuration objects
-  // axis_integ_cfg m_cfg;
+  axis_integ_config m_cfg;
 
   //  Group: Components
-  axis_agent m_agt_transmitter;
-  axis_agent m_agt_receiver;
-
-  vif_t vif_tr;
-  vif_t vif_re;
+  axis_agent m_agts[];
+  vif_t vifs[];
 
   // axis_vseqr m_vseqr = null;
 
@@ -29,44 +25,42 @@ class axis_env extends uvm_env;
     string report = $sformatf("%s.build_phase", this.report_id);
 
     super.build_phase(phase);
-
     `uvm_info(report, $sformatf("Starting build_phase for %s", get_full_name()), UVM_NONE)
 
-    // m_vseqr           = axis_vseqr::type_id::create("m_vseqr", this);
 
-    m_agt_transmitter = axis_agent::type_id::create("m_agt_transmitter", this);
-    m_agt_receiver    = axis_agent::type_id::create("m_agt_receiver", this);
+    if (!uvm_config_db#(axis_integ_config)::get(this, "", "m_cfg", m_cfg))
+      `uvm_fatal(report_id, $sformatf("Error to get axis_integ_config for %s", this.get_full_name()
+                 ))
 
-    // NOTE: figure out why I had to fetch them after setting it on the db on the test_base
-    uvm_config_db#(axis_config)::get(this, "m_agt_transmitter*", "m_cfg", m_agt_transmitter.m_cfg);
-    uvm_config_db#(axis_config)::get(this, "m_agt_receiver*", "m_cfg", m_agt_receiver.m_cfg);
+    m_agts = new[m_cfg.get_n_agts()];
+    vifs   = new[m_cfg.get_n_agts()];
 
-    `uvm_info(report_id, $sformatf(
-              "Transmitter Configuration:\n%s", m_agt_transmitter.m_cfg.sprint()), UVM_MEDIUM)
+    `uvm_info(report, "Allocated m_agts and vifs in env", UVM_NONE)
+    foreach (m_agts[i]) begin
+      string agt_id = $sformatf("m_agts[%1d]", i);
+      m_agts[i] = axis_agent::type_id::create(agt_id, this);
 
-    `uvm_info(report_id, $sformatf("Receiver Configuration:\n%s", m_agt_receiver.m_cfg.sprint()),
-              UVM_MEDIUM)
+      uvm_config_db#(axis_config)::get(this, $sformatf("%s*", agt_id), "m_cfg", m_agts[i].m_cfg);
+      `uvm_info(report_id, $sformatf(
+                "Agent configuration Configuration:\n%s", m_agts[i].m_cfg.sprint()), UVM_MEDIUM)
 
-    if (!uvm_config_db#(vif_t)::get(
-            this, "", "vif_re", vif_re
-        ) || !uvm_config_db#(vif_t)::get(
-            this, "", "vif_tr", vif_tr
-        ))
-      `uvm_fatal(report, $sformatf("Unable to get vif for %s", get_full_name()))
+      if (!uvm_config_db#(vif_t)::get(this, "", $sformatf("vifs[%1d]", i), vifs[i]))
+        `uvm_fatal(
+            report, $sformatf(
+            "Unable to get virtual interface vifs[%1d] for agent %s", i, m_agts[i].get_full_name()))
 
-    uvm_config_db#(vif_t)::set(this, "m_agt_transmitter*", "vif", vif_tr);
-    uvm_config_db#(vif_t)::set(this, "m_agt_receiver*", "vif", vif_re);
+      uvm_config_db#(vif_t)::set(this, $sformatf("%s*", agt_id), "vif", vifs[i]);
+    end
 
-    `uvm_info(report, $sformatf("Finishing build_phase for %s", get_full_name()), UVM_NONE)
+    `uvm_info(report, $sformatf("Finishing build_phase for %s", this.get_full_name()), UVM_NONE)
   endfunction : build_phase
 
   //  Constructor: new
-  function new(string name = "axis_env", uvm_component parent);
+  function new(string name = "axis_integ_env", uvm_component parent);
     super.new(name, parent);
     this.report_id = name;
   endfunction : new
 
-
-endclass : axis_env
+endclass : axis_integ_env
 
 

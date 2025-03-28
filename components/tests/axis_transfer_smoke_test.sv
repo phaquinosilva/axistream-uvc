@@ -1,4 +1,3 @@
-//  Class: axis_transfer_smoke_test
 
 class axis_transfer_smoke_test extends axis_transfer_base_test;
   `uvm_component_utils(axis_transfer_smoke_test)
