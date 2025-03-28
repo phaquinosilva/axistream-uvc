@@ -5,7 +5,7 @@
 `include "axis_if.sv"
 
 `ifndef AXI_FIFO_TEST
-// `define AXI_FIFO_TEST 
+`define AXI_FIFO_TEST 
 `endif
 
 module top_tb;
@@ -14,6 +14,7 @@ module top_tb;
   import uvm_pkg::*;
   import axis_uvc::*;
   import axis_integ_pkg::*;
+  localparam CLK_PERIOD = 2;
 
   logic ACLK;
   logic ARESETn;
@@ -83,7 +84,7 @@ module top_tb;
 
   initial begin
     ACLK = 1'b1;
-    forever #2 ACLK = ~ACLK;
+    forever #CLK_PERIOD ACLK = ~ACLK;
   end
 
   initial begin
@@ -92,6 +93,8 @@ module top_tb;
   end
 
   initial begin
+
+    uvm_config_db#(int)::set(null, "uvm_test_top.m_env", "CLK_PERIOD", CLK_PERIOD);
 
     // input FIFO
 `ifdef AXI_FIFO_TEST

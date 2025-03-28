@@ -20,9 +20,12 @@ class axis_transfer_seq extends uvm_sequence #(axis_transfer);
 
   rand int unsigned delay;
 
+  // num_samples
+
   //  Group: Constraints
 
-  constraint delay_c {delay inside {[0 : 5]};}
+  constraint delay_c {delay inside {[0 : 100]};}
+
 
   constraint strb_keep_c {
     // Guarantee TSTRB is active only if TKEEP
@@ -60,6 +63,8 @@ class axis_transfer_seq extends uvm_sequence #(axis_transfer);
 
     start_item(m_item);
 
+    `uvm_info(report_id, $sformatf("Started item on sequence '%s'.", this.get_full_name()),
+              UVM_MEDIUM)
     if (!m_item.randomize() with {
           tdata == local:: tdata;
           tkeep == local:: tkeep;

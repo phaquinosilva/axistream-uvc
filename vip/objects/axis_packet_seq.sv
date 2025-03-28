@@ -46,7 +46,7 @@ class axis_packet_seq extends uvm_sequence #(axis_transfer);
   constraint delay_c {
     solve size before delays;
     delays.size() == size;
-    foreach (delays[i]) soft delays[i] inside {[0 : 1000]};
+    foreach (delays[i]) soft delays[i] inside {[0 : 10]};
   }
 
   constraint strb_keep_c {
@@ -77,10 +77,10 @@ class axis_packet_seq extends uvm_sequence #(axis_transfer);
 
   task body;
     string report = $sformatf("%s.body", this.report_id);
+    axis_transfer transfer;
     `uvm_info(report_id, $sformatf("Started sequence %s.", this.get_full_name()), UVM_MEDIUM)
-
     for (int i = 0; i < this.size; i++) begin
-      axis_transfer transfer = axis_transfer::type_id::create("transfer");
+      transfer = axis_transfer::type_id::create("transfer");
 
       start_item(transfer);
       if (!transfer.randomize() with {

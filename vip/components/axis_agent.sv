@@ -40,11 +40,11 @@ class axis_agent extends uvm_agent;
       `uvm_fatal(report_id, $sformatf("Error to get axis_config for %s", this.get_full_name()))
 
     // TRANSFER infra
-    if (m_cfg.device_type == TRANSMITTER) begin
-      `uvm_info(report_id, $sformatf("Creating transfer sequencer for '%s'.", this.get_full_name()),
-                UVM_MEDIUM)
-      m_transfer_seqr = axis_transfer_seqr::type_id::create("m_transfer_seqr", this);
-    end
+    // if (m_cfg.device_type == TRANSMITTER) begin
+    `uvm_info(report_id, $sformatf("Creating transfer sequencer for '%s'.", this.get_full_name()),
+              UVM_MEDIUM)
+    m_transfer_seqr = axis_transfer_seqr::type_id::create("m_transfer_seqr", this);
+    // end
 
     // remaining components
     m_drv = axis_driver::type_id::create("m_drv", this);
@@ -59,13 +59,11 @@ class axis_agent extends uvm_agent;
     string report_id = $sformatf("%s.connect_phase", this.report_id);
     super.connect_phase(phase);
 
-    if (m_cfg.device_type == TRANSMITTER) begin
-      `uvm_info(report_id, $sformatf("Starting connect_phase for %s", this.get_full_name()),
-                UVM_LOW)
-      m_drv.seq_item_port.connect(m_transfer_seqr.seq_item_export);
-      `uvm_info(report_id, $sformatf("Finishing connect_phase for %s", this.get_full_name()),
-                UVM_LOW)
-    end
+    // if (m_cfg.device_type == TRANSMITTER) begin
+    `uvm_info(report_id, $sformatf("Starting connect_phase for %s", this.get_full_name()), UVM_LOW)
+    m_drv.seq_item_port.connect(m_transfer_seqr.seq_item_export);
+    `uvm_info(report_id, $sformatf("Finishing connect_phase for %s", this.get_full_name()), UVM_LOW)
+    // end
 
   endfunction : connect_phase
 

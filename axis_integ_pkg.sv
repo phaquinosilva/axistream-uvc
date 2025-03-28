@@ -15,8 +15,12 @@ package axis_integ_pkg;
   import axis_uvc::*;
   // import axis_uvc::vif_t;
 
+  // Group: Typedefs
+  typedef axis_integ_config;
+
+
   // Group: UVM Components
-  // `include "axis_vseq.sv"
+  `include "axis_vseq.sv"
   // `include "axis_scoreboard.sv"
   `include "axis_env.sv"
   `include "axis_integ_config.sv"
@@ -24,8 +28,8 @@ package axis_integ_pkg;
 
   // Group: tests
   // transfer test setup
-  `include "axis_transfer_base_test.sv"
-  `include "axis_transfer_smoke_test.sv"
+  // `include "axis_transfer_base_test.sv"
+  // `include "axis_transfer_smoke_test.sv"
 
   // packet_tests
   `include "axis_test_base.sv"

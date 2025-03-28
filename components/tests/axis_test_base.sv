@@ -5,8 +5,6 @@
 // Description: This file comprises the base test for the axis integration env.
 //==============================================================================
 
-//  Class: axis_integ_test_base
-//
 class axis_test_base extends uvm_component;
   `uvm_component_utils(axis_test_base)
 
@@ -49,6 +47,7 @@ class axis_test_base extends uvm_component;
 
   endfunction : build_phase
 
+
   /* Function: build_phase_create_cfg
 
     Description:
@@ -57,16 +56,14 @@ class axis_test_base extends uvm_component;
   virtual function void build_phase_create_cfg(uvm_phase phase);
     axis_config cfg_item_master, cfg_item_slave;
     string report_id = $sformatf("%s.build_phase_create_cfg", this.report_id);
-    // `uvm_info(report_id, "Creating configurations.", UVM_LOW)
-
 
     cfg_item_master = axis_config::type_id::create("cfg_item_master");
     cfg_item_master.vip_id = 0;
-    cfg_item_master.set_options(.device_type(TRANSMITTER), .use_packets(1));
+    cfg_item_master.set_options(.device_type(TRANSMITTER), .use_packets(1), .use_transfers(0));
 
     cfg_item_slave = axis_config::type_id::create("cfg_item_slave");
     cfg_item_slave.vip_id = 1;
-    cfg_item_slave.set_options(.device_type(RECEIVER), .use_packets(1));
+    cfg_item_slave.set_options(.device_type(RECEIVER), .use_packets(1), .use_transfers(0));
 
     m_env_cfg = axis_integ_config::type_id::create(.name("m_env_cfg"));
     m_env_cfg.set_agt_configs(2, '{cfg_item_master, cfg_item_slave});
@@ -93,6 +90,7 @@ class axis_test_base extends uvm_component;
     m_env = axis_integ_env::type_id::create("m_env", this);
 
   endfunction : build_phase_create_components
+
 
   /* Function: build_phase_uvm_config_db
 
@@ -153,39 +151,112 @@ class axis_test_base extends uvm_component;
   */
   task run_phase(uvm_phase phase);
     int num_samples;
-    axis_packet_seq seq;
-    // axis_transfer_seq seq;
+    int clk_period;
+    int seq_size = 10;
 
-    `uvm_info(get_name(), $sformatf("Starting run_phase for %s, objection raised.",
-                                    this.get_full_name()), UVM_NONE)
+    axis_config agt_config;
+
+    axis_packet_seq pseq[];
+    axis_transfer_seq tseq[];
+    axis_vseq vseq;
+
+    vseq = axis_vseq::type_id::create("vseq");
+
+    vseq.setup_vseq(m_env_cfg);
+
+    pseq = new[m_env_cfg.get_n_agts()];
+    tseq = new[m_env_cfg.get_n_agts()];
 
     foreach (m_env.m_agts[i]) begin
-      if (m_env.m_agts[i].m_cfg.device_type == RECEIVER) continue;
-      if (!std::randomize(num_samples) with {num_samples inside {[2 : 10]};})
-        `uvm_fatal(report_id, "Unable to randomize num_samples")
+      vseq.m_transfer_seqr[i] = m_env.m_agts[i].m_transfer_seqr;
+      agt_config = m_env.m_agts[i].m_cfg;
+      if (agt_config.use_transfers) begin
+        tseq[i] = axis_transfer_seq::type_id::create($sformatf("tseq[%1d]", i));
+        vseq.m_transfer_seq[i] = tseq[i];
+      end  // if 
+      if (agt_config.use_packets) begin
+        pseq[i] = axis_packet_seq::type_id::create($sformatf("vseq[%1d]", i));
+        vseq.m_pkt_seq[i] = pseq[i];
+      end  // if
+    end  // foreach
 
-      `uvm_info(report_id, $sformatf("Running %0d samples", num_samples), UVM_NONE)
+    if (!uvm_config_db#(int)::get(null, "uvm_test_top.m_env", "CLK_PERIOD", clk_period))
+      `uvm_fatal(report_id, "Unable to find clock period for test.")
+    `uvm_info(report_id, $sformatf("Clock period for test is %1d.", clk_period), UVM_NONE)
 
-      seq = axis_packet_seq::type_id::create($sformatf("seq_%1d", i));
-      // seq = axis_transfer_seq::type_id::create("seq");
+    if (!std::randomize(num_samples) with {num_samples inside {[2 : 100]};})
+      `uvm_fatal(report_id, "Unable to randomize num_samples")
+    `uvm_info(report_id, $sformatf("Running %0d samples", num_samples), UVM_NONE)
 
-      phase.raise_objection(this);
+    phase.raise_objection(this);
+    `uvm_info(report_id, $sformatf("Starting run_phase for %s, objection raised.",
+                                   this.get_full_name()), UVM_NONE)
 
-      #10;
-      repeat (num_samples) begin
-        if (!seq.randomize() with {size == 10;}) `uvm_fatal(report_id, "Unable to randomize seq.")
-        `uvm_info(report_id, $sformatf("Randomized packet %s", seq.sprint()), UVM_NONE)
-        seq.start(m_env.m_agts[i].m_transfer_seqr);
+    #clk_period;
+    repeat (num_samples) begin
+      foreach (m_env.m_agts[i]) begin
+        randomize_agt_seq(i, m_env.m_agts[i].m_cfg, tseq, pseq, seq_size);
       end
-    end
+      vseq.start(null);
+    end  // repeat
 
-    #10ms;
+    // #(100 * num_samples * seq_size * clk_period);
+    #1000;
 
     phase.drop_objection(this);
 
-    `uvm_info(get_name(), $sformatf("Finished run_phase for %s, objection dropped.",
-                                    this.get_full_name()), UVM_NONE)
+    `uvm_info(report_id, $sformatf("Finished run_phase for %s, objection dropped.",
+                                   this.get_full_name()), UVM_NONE)
   endtask : run_phase
 
+  function randomize_agt_seq(int i, ref axis_config agt_config, ref axis_transfer_seq tseq[],
+                             ref axis_packet_seq pseq[], int seq_size);
+    if (agt_config.use_transfers) begin
+      case (agt_config.device_type)
+        RECEIVER: begin
+          if (!tseq[i].randomize() with {
+                tdata == 0;
+                tkeep == 0;
+                tstrb == 0;
+              })
+            `uvm_fatal(report_id, "Unable to randomize seq.")
+          `uvm_info(report_id, $sformatf(
+                    "Randomized transfer for %s \n%s", agt_config.device_type.name, tseq[i].sprint()
+                    ), UVM_NONE)
+        end  // receiver
+        TRANSMITTER: begin
+          if (!tseq[i].randomize()) `uvm_fatal(report_id, "Unable to randomize tseq.")
+          `uvm_info(report_id, $sformatf(
+                    "Randomized transfer for %s \n%s", agt_config.device_type.name, tseq[i].sprint()
+                    ), UVM_NONE)
+        end  // transmitter
+        default: `uvm_fatal(report_id, "Invalid device type.")
+      endcase
+    end else if (agt_config.use_packets) begin
+      case (agt_config.device_type)
+        RECEIVER: begin
+          if (!pseq[i].randomize() with {
+                size == seq_size;
+                foreach (p_data[k]) p_data[k] == 0;
+                foreach (p_keep[k]) p_keep[k] == 0;
+                foreach (p_strb[k]) p_strb[k] == 0;
+              })
+            `uvm_fatal(report_id, "Unable to randomize pseq.")
+          `uvm_info(report_id, $sformatf(
+                    "Randomized packet for %s: \n%s", agt_config.device_type.name, pseq[i].sprint()
+                    ), UVM_NONE)
+        end  // receiver
+        TRANSMITTER: begin
+          if (!pseq[i].randomize() with {size == seq_size;})
+            `uvm_fatal(report_id, "Unable to randomize seq.")
+          `uvm_info(report_id, $sformatf(
+                    "Randomized packet for %s: \n%s", agt_config.device_type.name, pseq[i].sprint()
+                    ), UVM_NONE)
+        end  // transmitter
+        default: `uvm_fatal(report_id, "Invalid device type.")
+      endcase
+    end  // if
+
+  endfunction
 
 endclass : axis_test_base

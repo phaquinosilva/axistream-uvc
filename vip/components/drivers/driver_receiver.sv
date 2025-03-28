@@ -16,9 +16,9 @@ task axis_driver::run_phase_receiver();
 
   vif.TREADY = 1'b0;
   forever begin
-    reset_receiver();
+    if (!vif.ARESETn) reset_receiver();
     fork
-      drive_transfer_receiver();
+      main_receiver();
       @(negedge vif.ARESETn);
     join_any
     disable fork;
@@ -31,6 +31,24 @@ endtask : run_phase_receiver
 task axis_driver::reset_receiver;
 endtask : reset_receiver
 
+task axis_driver::main_receiver;
+  axis_transfer item;
+
+  fork
+    forever begin
+      seq_item_port.get_next_item(item);
+      drive_transfer_receiver(item);
+      seq_item_port.item_done();
+    end
+    begin : RESET_ITEM
+      @(negedge vif.ARESETn);
+      seq_item_port.item_done();
+    end
+  join_any
+  disable fork;
+
+endtask
+
 
 /* Task: drive_transfer_receiver
 
@@ -41,16 +59,19 @@ endtask : reset_receiver
     deassert TREADY at any time before a handshake is started.
     - This task finishes the handshake only when initiated by the TRANSMITTER.
 */
-task axis_driver::drive_transfer_receiver;
+task axis_driver::drive_transfer_receiver(axis_transfer item);
   // start not ready to receive
+  `uvm_info(report_id, $sformatf("Waiting the delay on port:\n%s", item.delay), UVM_FULL)
+  repeat (item.delay) @(posedge vif.ACLK);
 
-  // HANDSHAKE 2.2.3 -- asserts TREADY at the same clock or after TVALID
+  // if (!vif.TVALID) @(posedge vif.TVALID);
+
   if (!vif.TVALID) @(posedge vif.TVALID);
-
-  `uvm_info(report_id, "Finish handshake", UVM_FULL)
+  `uvm_info(report_id, "Assert TREADY and listen on TVALID", UVM_FULL)
   vif.TREADY = 1'b1;
 
-  // Wait for transfer completion to drive TREADY low 
+  // HANDSHAKE 2.2.3 -- asserts TREADY at the same clock or after TVALID
+  // Wait for transfer completion to drive TREADY low
   // TVALID may only be deasserted after transfer finished
   @(negedge vif.TVALID);
   vif.TREADY = 1'b0;
