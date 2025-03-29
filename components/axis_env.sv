@@ -1,5 +1,7 @@
-//  Class: axis_env
-//
+`ifndef axis_env__sv
+`define axis_env__sv 
+
+
 class axis_env extends uvm_env;
   `uvm_component_utils(axis_env)
 
@@ -69,4 +71,4 @@ class axis_env extends uvm_env;
 
 endclass : axis_env
 
-
+`endif

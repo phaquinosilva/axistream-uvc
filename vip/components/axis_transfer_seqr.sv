@@ -1,5 +1,7 @@
-//  Class: axis_transfer_seqr
-//
+`ifndef axis_transfer_seqr__sv
+`define axis_transfer_seqr__sv 
+
+
 class axis_transfer_seqr extends uvm_sequencer #(axis_transfer);
   `uvm_component_utils(axis_transfer_seqr)
 
@@ -10,3 +12,5 @@ class axis_transfer_seqr extends uvm_sequencer #(axis_transfer);
 
 
 endclass : axis_transfer_seqr
+
+`endif

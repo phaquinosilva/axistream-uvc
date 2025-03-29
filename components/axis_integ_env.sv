@@ -1,3 +1,6 @@
+`ifndef axis_integ_env__sv
+`define axis_integ_env__sv 
+
 
 class axis_integ_env extends uvm_env;
   `uvm_component_utils(axis_integ_env)
@@ -63,4 +66,4 @@ class axis_integ_env extends uvm_env;
 
 endclass : axis_integ_env
 
-
+`endif

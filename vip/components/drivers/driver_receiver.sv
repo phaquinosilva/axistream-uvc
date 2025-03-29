@@ -5,6 +5,8 @@
 // Description: This file comprises the RECEIVER methods for the driver component
 //              of the AXI-Stream VIP.
 //==============================================================================
+`ifdef axis_driver__sv
+
 
 /* Task: run_phase_receiver
 
@@ -78,3 +80,4 @@ task axis_driver::drive_transfer_receiver(axis_transfer item);
 
 endtask : drive_transfer_receiver
 
+`endif

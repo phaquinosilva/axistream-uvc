@@ -5,6 +5,9 @@
 // Description: This file comprises the configuration object fpr the AXI-Stream
 //              UVC agents.
 //==============================================================================
+`ifndef axis_config__sv
+`define axis_config__sv
+
 
 class axis_config extends uvm_object;
 
@@ -103,3 +106,5 @@ class axis_config extends uvm_object;
   endfunction : new
 
 endclass : axis_config
+
+`endif

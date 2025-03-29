@@ -1,3 +1,7 @@
+`ifndef axis_scoreboard__sv
+`define axis_scoreboard__sv
+
+
 class axis_scoreboard extends uvm_scoreboard;
 
   `uvm_component_utils(axis_scoreboard)
@@ -7,3 +11,5 @@ class axis_scoreboard extends uvm_scoreboard;
   endfunction
 
 endclass
+
+`endif

@@ -1,3 +1,6 @@
+`ifndef axis_transfer_smoke_test__sv
+`define axis_transfer_smoke_test__sv
+
 
 class axis_transfer_smoke_test extends axis_transfer_base_test;
   `uvm_component_utils(axis_transfer_smoke_test)
@@ -36,3 +39,5 @@ class axis_transfer_smoke_test extends axis_transfer_base_test;
   endfunction : new
 
 endclass : axis_transfer_smoke_test
+
+`endif

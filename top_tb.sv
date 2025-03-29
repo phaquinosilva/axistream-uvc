@@ -1,9 +1,12 @@
-//  Module: top_tb
+`ifndef top_tb__sv
+`define top_tb__sv 
+
 
 `timescale 1ns / 100ps
 `include "uvm_macros.svh"
 `include "axis_if.sv"
 
+// Conditional compile on DUT instantiation
 `ifndef AXI_FIFO_TEST
 `define AXI_FIFO_TEST 
 `endif
@@ -12,7 +15,7 @@ module top_tb;
   /*  package imports  */
 
   import uvm_pkg::*;
-  import axis_uvc::*;
+  import axis_uvc_pkg::*;
   import axis_integ_pkg::*;
   localparam CLK_PERIOD = 2;
 
@@ -112,3 +115,5 @@ module top_tb;
   end
 
 endmodule : top_tb
+
+`endif

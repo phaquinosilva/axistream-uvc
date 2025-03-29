@@ -5,6 +5,9 @@
 // Description: This file comprises the byte trasnfer sequence for the
 // AXI-Stream VIP.
 //==============================================================================
+`ifndef axis_transfer_seq__sv
+`define axis_transfer_seq__sv
+
 
 class axis_transfer_seq extends uvm_sequence #(axis_transfer);
 
@@ -82,3 +85,5 @@ class axis_transfer_seq extends uvm_sequence #(axis_transfer);
   endtask : body
 
 endclass : axis_transfer_seq
+
+`endif

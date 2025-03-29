@@ -8,7 +8,9 @@ Authors:
 
 */
 
-`resetall `timescale 1ns / 1ps `default_nettype none
+`ifndef axis_fifo__sv
+`define axis_fifo__sv
+`resetall `timescale 1ns / 100ps `default_nettype none
 
 /*
  * AXI4-Stream FIFO
@@ -579,3 +581,4 @@ module axis_fifo #(
 endmodule
 
 `resetall
+`endif

@@ -1,5 +1,7 @@
-//  Class: axis_transfer_base_test
-//
+`ifndef axis_transfer_base_test__sv
+`define axis_transfer_base_test__sv 
+
+
 class axis_transfer_base_test extends uvm_test;
   `uvm_component_utils(axis_transfer_base_test)
 
@@ -47,3 +49,5 @@ class axis_transfer_base_test extends uvm_test;
   endfunction : new
 
 endclass : axis_transfer_base_test
+
+`endif

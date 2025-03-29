@@ -7,6 +7,9 @@
 // by the axis_transfer_seq. Packets, frames, etc. are generated separately
 // and must be sent to the driver explicitly for the relevant signals to be drived.
 //==============================================================================
+`ifndef axis_driver__sv
+`define axis_driver__sv 
+
 
 class axis_driver extends uvm_driver #(axis_transfer);
   `uvm_component_utils(axis_driver)
@@ -76,3 +79,5 @@ class axis_driver extends uvm_driver #(axis_transfer);
   extern task drive_transfer_receiver(axis_transfer item);
 
 endclass : axis_driver
+
+`endif

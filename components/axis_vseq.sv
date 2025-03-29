@@ -1,4 +1,6 @@
-//  Class: axis_vseq
+`ifndef axis_vseq__sv
+`define axis_vseq__sv 
+
 
 class axis_vseq extends uvm_sequence;
   `uvm_object_utils(axis_vseq)
@@ -53,3 +55,5 @@ class axis_vseq extends uvm_sequence;
   endfunction : new
 
 endclass : axis_vseq
+
+`endif

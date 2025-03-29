@@ -4,6 +4,9 @@
 // Filename: axis_test_base.sv
 // Description: This file comprises the base test for the axis integration env.
 //==============================================================================
+`ifndef axis_test_base__sv
+`define axis_test_base__sv
+
 
 class axis_test_base extends uvm_component;
   `uvm_component_utils(axis_test_base)
@@ -13,6 +16,12 @@ class axis_test_base extends uvm_component;
 
   //  Group: Components
   axis_integ_env m_env;
+
+  //  Group: Objects
+  axis_packet_seq pseq[];
+  axis_transfer_seq tseq[];
+  axis_vseq vseq;
+
 
   //  Group: Variables
   protected string report_id = "";
@@ -58,11 +67,12 @@ class axis_test_base extends uvm_component;
     string report_id = $sformatf("%s.build_phase_create_cfg", this.report_id);
 
     cfg_item_master = axis_config::type_id::create("cfg_item_master");
-    cfg_item_master.vip_id = 0;
-    cfg_item_master.set_options(.device_type(TRANSMITTER), .use_packets(1), .use_transfers(0));
-
     cfg_item_slave = axis_config::type_id::create("cfg_item_slave");
+
+    cfg_item_master.vip_id = 0;
     cfg_item_slave.vip_id = 1;
+
+    cfg_item_master.set_options(.device_type(TRANSMITTER), .use_packets(1), .use_transfers(0));
     cfg_item_slave.set_options(.device_type(RECEIVER), .use_packets(1), .use_transfers(0));
 
     m_env_cfg = axis_integ_config::type_id::create(.name("m_env_cfg"));
@@ -118,8 +128,31 @@ class axis_test_base extends uvm_component;
   // ===========================================================================
 
   function void connect_phase(uvm_phase phase);
-
+    axis_config agt_config;
     super.connect_phase(phase);
+    `uvm_info(report_id, $sformatf("Starting connect_phase for %s.", this.get_full_name()),
+              UVM_NONE)
+
+    vseq = axis_vseq::type_id::create("vseq");
+    vseq.setup_vseq(m_env_cfg);
+    pseq = new[m_env_cfg.get_n_agts()];
+    tseq = new[m_env_cfg.get_n_agts()];
+
+    foreach (m_env.m_agts[i]) begin
+      vseq.m_transfer_seqr[i] = m_env.m_agts[i].m_transfer_seqr;
+      agt_config = m_env.m_agts[i].m_cfg;
+      if (agt_config.use_transfers) begin
+        tseq[i] = axis_transfer_seq::type_id::create($sformatf("tseq[%1d]", i));
+        vseq.m_transfer_seq[i] = tseq[i];
+      end
+      if (agt_config.use_packets) begin
+        pseq[i] = axis_packet_seq::type_id::create($sformatf("vseq[%1d]", i));
+        vseq.m_pkt_seq[i] = pseq[i];
+      end
+    end  // foreach
+
+    `uvm_info(report_id, $sformatf("Finishing connect_phase for %s.", this.get_full_name()),
+              UVM_NONE)
 
   endfunction : connect_phase
 
@@ -154,32 +187,6 @@ class axis_test_base extends uvm_component;
     int clk_period;
     int seq_size = 10;
 
-    axis_config agt_config;
-
-    axis_packet_seq pseq[];
-    axis_transfer_seq tseq[];
-    axis_vseq vseq;
-
-    vseq = axis_vseq::type_id::create("vseq");
-
-    vseq.setup_vseq(m_env_cfg);
-
-    pseq = new[m_env_cfg.get_n_agts()];
-    tseq = new[m_env_cfg.get_n_agts()];
-
-    foreach (m_env.m_agts[i]) begin
-      vseq.m_transfer_seqr[i] = m_env.m_agts[i].m_transfer_seqr;
-      agt_config = m_env.m_agts[i].m_cfg;
-      if (agt_config.use_transfers) begin
-        tseq[i] = axis_transfer_seq::type_id::create($sformatf("tseq[%1d]", i));
-        vseq.m_transfer_seq[i] = tseq[i];
-      end  // if 
-      if (agt_config.use_packets) begin
-        pseq[i] = axis_packet_seq::type_id::create($sformatf("vseq[%1d]", i));
-        vseq.m_pkt_seq[i] = pseq[i];
-      end  // if
-    end  // foreach
-
     if (!uvm_config_db#(int)::get(null, "uvm_test_top.m_env", "CLK_PERIOD", clk_period))
       `uvm_fatal(report_id, "Unable to find clock period for test.")
     `uvm_info(report_id, $sformatf("Clock period for test is %1d.", clk_period), UVM_NONE)
@@ -195,7 +202,7 @@ class axis_test_base extends uvm_component;
     #clk_period;
     repeat (num_samples) begin
       foreach (m_env.m_agts[i]) begin
-        randomize_agt_seq(i, m_env.m_agts[i].m_cfg, tseq, pseq, seq_size);
+        randomize_seq(i, m_env.m_agts[i].m_cfg, tseq, pseq, seq_size);
       end
       vseq.start(null);
     end  // repeat
@@ -209,8 +216,16 @@ class axis_test_base extends uvm_component;
                                    this.get_full_name()), UVM_NONE)
   endtask : run_phase
 
-  function randomize_agt_seq(int i, ref axis_config agt_config, ref axis_transfer_seq tseq[],
-                             ref axis_packet_seq pseq[], int seq_size);
+
+
+  /* Function: randomize seq
+
+    Description:
+      - Randomizes a sequence.
+      - Constraints should be set here.
+  */
+  function randomize_seq(int i, ref axis_config agt_config, ref axis_transfer_seq tseq[],
+                         ref axis_packet_seq pseq[], int seq_size);
     if (agt_config.use_transfers) begin
       case (agt_config.device_type)
         RECEIVER: begin
@@ -232,7 +247,9 @@ class axis_test_base extends uvm_component;
         end  // transmitter
         default: `uvm_fatal(report_id, "Invalid device type.")
       endcase
-    end else if (agt_config.use_packets) begin
+    end
+
+    if (agt_config.use_packets) begin
       case (agt_config.device_type)
         RECEIVER: begin
           if (!pseq[i].randomize() with {
@@ -260,3 +277,5 @@ class axis_test_base extends uvm_component;
   endfunction
 
 endclass : axis_test_base
+
+`endif

@@ -1,3 +1,6 @@
+`ifndef axis_integ_config__sv
+`define axis_integ_config__sv
+
 
 class axis_integ_config extends uvm_object;
 
@@ -77,3 +80,5 @@ class axis_integ_config extends uvm_object;
   endfunction : new
 
 endclass : axis_integ_config
+
+`endif

@@ -4,6 +4,9 @@
 // Filename: axis_packet_seq.sv
 // Description: This file comprises the base sequence for the AXI-Stream VIP.
 //==============================================================================
+`ifndef axis_packet_seq__sv
+`define axis_packet_seq__sv
+
 
 class axis_packet_seq extends uvm_sequence #(axis_transfer);
 
@@ -103,3 +106,5 @@ class axis_packet_seq extends uvm_sequence #(axis_transfer);
   endtask : body
 
 endclass : axis_packet_seq
+
+`endif

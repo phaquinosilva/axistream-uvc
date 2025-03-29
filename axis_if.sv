@@ -4,11 +4,11 @@
 // Filename: axis_if.sv
 // Description: This file comprises the interface for the AXI-Stream VIP.
 //==============================================================================
-
-`timescale 1ns / 100ps
 `ifndef axis_if__sv
 `define axis_if__sv
 
+
+`timescale 1ns / 100ps
 interface axis_if #(
     parameter int TDATA_WIDTH = 8,
     parameter int TDEST_WIDTH = 8,

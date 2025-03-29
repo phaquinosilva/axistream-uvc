@@ -4,16 +4,18 @@
 // Filename: axis_uvc.sv
 // Description: This file comprises the package for the AXI-Stream VIP.
 //==============================================================================
+`ifndef axis_uvc__sv
+`define axis_uvc__sv
 
-
-// Uncomment this line for AXI5-Stream functionality
-// `ifndef __AXI5_STREAM__
+// NOTE: AXI5-Stream not yet supported
+`ifndef __AXI5_STREAM__
+// Uncomment following line for AXI5-Stream functionality:
 // `define __AXI5_STREAM__
-// `endif
+`endif
 
-//  Package: axis_uvc
+//  Package: axis_uvc_pkg
 //
-package axis_uvc;
+package axis_uvc_pkg;
 
   //  Group: UVM
   import uvm_pkg::*;
@@ -72,4 +74,6 @@ package axis_uvc;
   `include "axis_monitor.sv"
   `include "axis_agent.sv"
 
-endpackage : axis_uvc
+endpackage : axis_uvc_pkg
+
+`endif

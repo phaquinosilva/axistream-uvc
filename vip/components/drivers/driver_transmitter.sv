@@ -5,6 +5,8 @@
 // Description: This file comprises the TRANSMITTER methods for the driver component
 //              of the AXI-Stream VIP.
 //==============================================================================
+`ifdef axis_driver__sv
+
 
 /* Task: run_phase_transmitter
 
@@ -91,3 +93,4 @@ task axis_driver::drive_transfer_transmitter(axis_transfer item);
   vif.TVALID = 0;
 endtask : drive_transfer_transmitter
 
+`endif

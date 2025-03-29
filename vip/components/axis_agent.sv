@@ -4,6 +4,9 @@
 // Filename: axis_agent.sv
 // Description: This file comprises the AXI-Stream agent for the AXI-Stream VIP.
 //==============================================================================
+`ifndef axis_agent__sv
+`define axis_agent__sv 
+
 
 class axis_agent extends uvm_agent;
   `uvm_component_utils(axis_agent)
@@ -76,3 +79,4 @@ class axis_agent extends uvm_agent;
 
 endclass : axis_agent
 
+`endif

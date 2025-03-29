@@ -4,6 +4,9 @@
 // Filename: axis_monitor.sv
 // Description: This file comprises the monitor of the AXI-Stream VIP.
 //==============================================================================
+`ifndef axis_monitor__sv
+`define axis_monitor__sv 
+
 
 class axis_monitor extends uvm_monitor;
   `uvm_component_utils(axis_monitor)
@@ -69,3 +72,4 @@ class axis_monitor extends uvm_monitor;
 
 endclass : axis_monitor
 
+`endif

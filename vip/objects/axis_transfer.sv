@@ -5,6 +5,9 @@
 // Description: This file comprises the AXI-Stream transfer item
 // for the AXI-Stream VIP.
 //==============================================================================
+`ifndef axis_transfer__sv
+`define axis_transfer__sv
+
 
 class axis_transfer extends uvm_sequence_item;
 
@@ -70,3 +73,5 @@ class axis_transfer extends uvm_sequence_item;
   endfunction : new
 
 endclass : axis_transfer
+
+`endif

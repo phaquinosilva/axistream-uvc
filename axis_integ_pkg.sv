@@ -5,6 +5,9 @@
 // Description: This file comprises the integration package for the AXI-Stream 
 // VIP. Tests and env components should be included here.
 //==============================================================================
+`ifndef axis_integ_pkg__sv
+`define axis_integ_pkg__sv
+
 
 package axis_integ_pkg;
 
@@ -12,7 +15,7 @@ package axis_integ_pkg;
   `include "uvm_macros.svh"
   import uvm_pkg::*;
 
-  import axis_uvc::*;
+  import axis_uvc_pkg::*;
   // import axis_uvc::vif_t;
 
   // Group: Typedefs
@@ -35,3 +38,5 @@ package axis_integ_pkg;
   `include "axis_test_base.sv"
 
 endpackage : axis_integ_pkg
+
+`endif
