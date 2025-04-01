@@ -13,12 +13,11 @@
 
 module top_tb;
   /*  package imports  */
-
   import uvm_pkg::*;
   import axis_uvc_pkg::*;
   import axis_integ_pkg::*;
-  localparam CLK_PERIOD = 2;
 
+  localparam CLK_PERIOD = 2;
   logic ACLK;
   logic ARESETn;
 

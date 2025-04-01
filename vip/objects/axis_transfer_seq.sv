@@ -23,8 +23,6 @@ class axis_transfer_seq extends uvm_sequence #(axis_transfer);
 
   rand int unsigned delay;
 
-  // num_samples
-
   //  Group: Constraints
 
   constraint delay_c {delay inside {[0 : 100]};}

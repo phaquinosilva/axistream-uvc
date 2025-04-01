@@ -65,18 +65,17 @@ task axis_driver::drive_transfer_receiver(axis_transfer item);
   // start not ready to receive
   `uvm_info(report_id, $sformatf("Waiting the delay on port:\n%s", item.delay), UVM_FULL)
   repeat (item.delay) @(posedge vif.ACLK);
-
-  // if (!vif.TVALID) @(posedge vif.TVALID);
+  vif.TREADY = 1'b1;
 
   if (!vif.TVALID) @(posedge vif.TVALID);
   `uvm_info(report_id, "Assert TREADY and listen on TVALID", UVM_FULL)
-  vif.TREADY = 1'b1;
 
   // HANDSHAKE 2.2.3 -- asserts TREADY at the same clock or after TVALID
   // Wait for transfer completion to drive TREADY low
   // TVALID may only be deasserted after transfer finished
-  @(negedge vif.TVALID);
-  vif.TREADY = 1'b0;
+
+  // @(negedge vif.TVALID);
+  @(posedge vif.ACLK) vif.TREADY = 1'b0;
 
 endtask : drive_transfer_receiver
 

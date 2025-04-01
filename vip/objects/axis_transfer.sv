@@ -48,6 +48,11 @@ class axis_transfer extends uvm_sequence_item;
   */
   time timestamp;
 
+  /* miscompares:
+  *   - used for custom comparer.
+  */
+  string miscompares = "";
+
   /* delay:
     - Holds a delay to be applied prior to sending this item.
     - This delay is an integer and represents a number of clock cycles.
@@ -56,16 +61,29 @@ class axis_transfer extends uvm_sequence_item;
 
   // Utils
   `uvm_object_utils_begin(axis_transfer)
-    `uvm_field_int(tdata, UVM_DEFAULT | UVM_HEX)
-    `uvm_field_int(tkeep, UVM_DEFAULT | UVM_BIN)
-    `uvm_field_int(tstrb, UVM_DEFAULT | UVM_BIN)
-    `uvm_field_int(tlast, UVM_DEFAULT | UVM_BIN)
-    `uvm_field_int(delay, UVM_DEFAULT | UVM_DEC)
-    `uvm_field_int(timestamp, UVM_DEFAULT | UVM_TIME)
+    `uvm_field_int(tdata, UVM_NOCOMPARE | UVM_HEX)
+    `uvm_field_int(tkeep, UVM_NOCOMPARE | UVM_BIN)
+    `uvm_field_int(tstrb, UVM_NOCOMPARE | UVM_BIN)
+    `uvm_field_int(tlast, UVM_NOCOMPARE | UVM_BIN)
+    `uvm_field_int(delay, UVM_NOCOMPARE | UVM_DEC)
+    `uvm_field_int(timestamp, UVM_NOCOMPARE | UVM_TIME)
   `uvm_object_utils_end
 
   //  Group: Constraints
   //  Group: Functions
+  function bit do_compare(uvm_object rhs, uvm_comparer comparer);
+    axis_transfer rhs_;
+    do_compare = 1;
+    if (!$cast(rhs_, rhs))
+      `uvm_fatal($sformatf("%s.do_compare", get_full_name()), "Unable to cast rhs.")
+
+    do_compare &= comparer.compare_field("tdata", this.tdata, rhs_.tdata, TDATA_WIDTH, UVM_HEX);
+    do_compare &= comparer.compare_field("tkeep", this.tkeep, rhs_.tkeep, TDATA_WIDTH / 8, UVM_HEX);
+    do_compare &= comparer.compare_field("tstrb", this.tstrb, rhs_.tstrb, TDATA_WIDTH / 8, UVM_HEX);
+    do_compare &= comparer.compare_field("tlast", this.tlast, rhs_.tlast, 1, UVM_HEX);
+
+    this.miscompares = comparer.miscompares;
+  endfunction
 
   //  Constructor: new
   function new(string name = "axis_transfer");

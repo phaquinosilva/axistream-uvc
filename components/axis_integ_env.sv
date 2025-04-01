@@ -9,10 +9,10 @@ class axis_integ_env extends uvm_env;
   axis_integ_config m_cfg;
 
   //  Group: Components
+  axis_scoreboard m_scbd = null;
   axis_agent m_agts[];
-  vif_t vifs[];
 
-  // axis_vseqr m_vseqr = null;
+  vif_t vifs[];
 
   //  Group: Variables
   string report_id = "";
@@ -30,7 +30,6 @@ class axis_integ_env extends uvm_env;
     super.build_phase(phase);
     `uvm_info(report, $sformatf("Starting build_phase for %s", get_full_name()), UVM_NONE)
 
-
     if (!uvm_config_db#(axis_integ_config)::get(this, "", "m_cfg", m_cfg))
       `uvm_fatal(report_id, $sformatf("Error to get axis_integ_config for %s", this.get_full_name()
                  ))
@@ -39,6 +38,7 @@ class axis_integ_env extends uvm_env;
     vifs   = new[m_cfg.get_n_agts()];
 
     `uvm_info(report, "Allocated m_agts and vifs in env", UVM_NONE)
+
     foreach (m_agts[i]) begin
       string agt_id = $sformatf("m_agts[%1d]", i);
       m_agts[i] = axis_agent::type_id::create(agt_id, this);
@@ -55,8 +55,29 @@ class axis_integ_env extends uvm_env;
       uvm_config_db#(vif_t)::set(this, $sformatf("%s*", agt_id), "vif", vifs[i]);
     end
 
+    if (m_cfg.has_scoreboard) begin
+      if (m_cfg.get_n_agts() == 2) begin
+        m_scbd = axis_scoreboard::type_id::create("m_scbd", this);
+      end else begin
+        `uvm_fatal(report, "Component axis_scoreboard only works with 2 agents.")
+      end
+    end
+
     `uvm_info(report, $sformatf("Finishing build_phase for %s", this.get_full_name()), UVM_NONE)
   endfunction : build_phase
+
+
+  function void connect_phase(uvm_phase phase);
+    super.connect_phase(phase);
+    if (m_scbd != null) begin
+      foreach (m_agts[i]) begin
+        if (m_agts[i].m_cfg.device_type == TRANSMITTER)
+          m_agts[i].m_mon.mon_analysis_port.connect(m_scbd.tr_transmitter_ap);
+        else m_agts[i].m_mon.mon_analysis_port.connect(m_scbd.tr_receiver_ap);
+      end
+    end
+  endfunction : connect_phase
+
 
   //  Constructor: new
   function new(string name = "axis_integ_env", uvm_component parent);

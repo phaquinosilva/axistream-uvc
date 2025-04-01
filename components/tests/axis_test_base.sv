@@ -22,7 +22,6 @@ class axis_test_base extends uvm_component;
   axis_transfer_seq tseq[];
   axis_vseq vseq;
 
-
   //  Group: Variables
   protected string report_id = "";
 
@@ -76,6 +75,7 @@ class axis_test_base extends uvm_component;
     cfg_item_slave.set_options(.device_type(RECEIVER), .use_packets(1), .use_transfers(0));
 
     m_env_cfg = axis_integ_config::type_id::create(.name("m_env_cfg"));
+    m_env_cfg.has_scoreboard = 1;
     m_env_cfg.set_agt_configs(2, '{cfg_item_master, cfg_item_slave});
     `uvm_info(
         report_id, $sformatf(
@@ -86,6 +86,8 @@ class axis_test_base extends uvm_component;
       `uvm_info(report_id, $sformatf(
                 "axis_config item_%1d : \n%s", i, m_env_cfg.get_config(i).sprint()), UVM_FULL)
     end
+
+
   endfunction : build_phase_create_cfg
 
 
@@ -134,6 +136,7 @@ class axis_test_base extends uvm_component;
               UVM_NONE)
 
     vseq = axis_vseq::type_id::create("vseq");
+
     vseq.setup_vseq(m_env_cfg);
     pseq = new[m_env_cfg.get_n_agts()];
     tseq = new[m_env_cfg.get_n_agts()];

@@ -37,10 +37,10 @@ class axis_vseq extends uvm_sequence;
       automatic int var_i = i;
       agt_cfg = m_cfg.get_config(var_i);
       fork
-        begin
-          if (agt_cfg.use_packets) m_pkt_seq[var_i].start(m_transfer_seqr[var_i]);
-          if (agt_cfg.use_transfers) m_transfer_seq[var_i].start(m_transfer_seqr[var_i]);
-        end
+        //begin
+        if (agt_cfg.use_packets) m_pkt_seq[var_i].start(m_transfer_seqr[var_i]);
+        if (agt_cfg.use_transfers) m_transfer_seq[var_i].start(m_transfer_seqr[var_i]);
+        //end
       join_none
     end
     wait fork;

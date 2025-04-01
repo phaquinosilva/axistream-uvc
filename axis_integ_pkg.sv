@@ -8,7 +8,6 @@
 `ifndef axis_integ_pkg__sv
 `define axis_integ_pkg__sv
 
-
 package axis_integ_pkg;
 
   //  Group: UVM
@@ -23,8 +22,8 @@ package axis_integ_pkg;
 
 
   // Group: UVM Components
+  `include "axis_scoreboard.sv"
   `include "axis_vseq.sv"
-  // `include "axis_scoreboard.sv"
   `include "axis_env.sv"
   `include "axis_integ_config.sv"
   `include "axis_integ_env.sv"
