@@ -188,7 +188,7 @@ class axis_test_base extends uvm_component;
   task run_phase(uvm_phase phase);
     int num_samples;
     int clk_period;
-    int seq_size = 10;
+    int seq_size;
 
     if (!uvm_config_db#(int)::get(null, "uvm_test_top.m_env", "CLK_PERIOD", clk_period))
       `uvm_fatal(report_id, "Unable to find clock period for test.")
@@ -198,10 +198,16 @@ class axis_test_base extends uvm_component;
       `uvm_fatal(report_id, "Unable to randomize num_samples")
     `uvm_info(report_id, $sformatf("Running %0d samples", num_samples), UVM_NONE)
 
+    if (!std::randomize(seq_size) with {num_samples inside {[2 : 100]};})
+      `uvm_fatal(report_id, "Unable to randomize seq_size")
+    `uvm_info(report_id, $sformatf("Running %0d samples", num_samples), UVM_NONE)
+
     phase.raise_objection(this);
     `uvm_info(report_id, $sformatf("Starting run_phase for %s, objection raised.",
                                    this.get_full_name()), UVM_NONE)
 
+    num_samples = 2;
+    seq_size = 10;
     #clk_period;
     repeat (num_samples) begin
       foreach (m_env.m_agts[i]) begin
@@ -260,6 +266,8 @@ class axis_test_base extends uvm_component;
                 foreach (p_data[k]) p_data[k] == 0;
                 foreach (p_keep[k]) p_keep[k] == 0;
                 foreach (p_strb[k]) p_strb[k] == 0;
+                foreach (delays[k]) delays[k] == 0;
+
               })
             `uvm_fatal(report_id, "Unable to randomize pseq.")
           `uvm_info(report_id, $sformatf(
@@ -267,7 +275,11 @@ class axis_test_base extends uvm_component;
                     ), UVM_NONE)
         end  // receiver
         TRANSMITTER: begin
-          if (!pseq[i].randomize() with {size == seq_size;})
+          if (!pseq[i].randomize() with {
+                size == seq_size;
+                foreach (p_data[k]) p_data[k] != 0;
+                foreach (delays[k]) delays[k] == 0;
+              })
             `uvm_fatal(report_id, "Unable to randomize seq.")
           `uvm_info(report_id, $sformatf(
                     "Randomized packet for %s: \n%s", agt_config.device_type.name, pseq[i].sprint()

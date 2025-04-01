@@ -16,7 +16,7 @@
 task axis_driver::run_phase_receiver();
   `uvm_info(report_id, "Starting the run_phase for the receiver agent.", UVM_LOW)
 
-  vif.TREADY = 1'b0;
+  vif.TREADY <= 1'b0;
   forever begin
     if (!vif.ARESETn) reset_receiver();
     fork
@@ -65,7 +65,7 @@ task axis_driver::drive_transfer_receiver(axis_transfer item);
   // start not ready to receive
   `uvm_info(report_id, $sformatf("Waiting the delay on port:\n%s", item.delay), UVM_FULL)
   repeat (item.delay) @(posedge vif.ACLK);
-  vif.TREADY = 1'b1;
+  vif.TREADY <= 1'b1;
 
   if (!vif.TVALID) @(posedge vif.TVALID);
   `uvm_info(report_id, "Assert TREADY and listen on TVALID", UVM_FULL)
@@ -75,7 +75,7 @@ task axis_driver::drive_transfer_receiver(axis_transfer item);
   // TVALID may only be deasserted after transfer finished
 
   // @(negedge vif.TVALID);
-  @(posedge vif.ACLK) vif.TREADY = 1'b0;
+  @(posedge vif.ACLK) vif.TREADY <= 1'b0;
 
 endtask : drive_transfer_receiver
 

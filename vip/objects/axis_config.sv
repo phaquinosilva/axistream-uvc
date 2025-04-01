@@ -94,7 +94,7 @@ class axis_config extends uvm_object;
     /* Bus configuration */
     this.TDATA_ENABLE  = TDATA_ENABLE;
     this.TKEEP_ENABLE  = TKEEP_ENABLE;
-    this.TLAST_ENABLE  = TLAST_ENABLE;
+    this.TLAST_ENABLE  = TLAST_ENABLE | use_packets;
     this.TSTRB_ENABLE  = TSTRB_ENABLE;
     this.TID_ENABLE    = TID_ENABLE;
     this.TDEST_ENABLE  = TDEST_ENABLE;

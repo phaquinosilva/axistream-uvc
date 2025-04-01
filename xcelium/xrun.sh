@@ -12,7 +12,7 @@ export VIP_INTEG=$(dirname -- $(readlink -fn -- "$0"))
 echo "PARENT: $CURRENT_PATH"
 
 seed=$(((RANDOM % 999999999 )  + 100000000))
-
+seed=100008653
 echo "Running seed: $seed"
 
 VERBOSITY="+UVM_VERBOSITY=UVM_MEDIUM"

@@ -89,8 +89,8 @@ task axis_driver::drive_transfer_transmitter(axis_transfer item);
   if (!vif.TREADY) @(posedge vif.TREADY);
 
   // turn control signals off after handshake
-  @(posedge vif.ACLK);
-  vif.TVALID = 0;
+  @(posedge vif.ACLK) vif.TVALID = 0;
+
 endtask : drive_transfer_transmitter
 
 `endif

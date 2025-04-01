@@ -1,9 +1,12 @@
 # simulation logs and files
 *simvision*
 *xcelium.d*
+*bpad*
 *waves.shm*
 *.history
-*.log
+*xrun.log
+*xrun.key
 *cov_work*
 *imc*
 *uvmtclcomm*
+*err

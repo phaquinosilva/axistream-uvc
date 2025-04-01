@@ -18,7 +18,7 @@ class axis_transfer extends uvm_sequence_item;
     - Is composed of any number of bytes that grouped have
       size TDATA_WIDTH.
   */
-  rand bit [TDATA_WIDTH-1:0] tdata;
+  rand logic [TDATA_WIDTH-1:0] tdata;
 
   /* tkeep
     - Indicates whether the associated byte is null.
