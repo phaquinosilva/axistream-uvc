@@ -20,6 +20,7 @@ package axis_integ_pkg;
   typedef axis_scoreboard;
   typedef axis_integ_config;
   typedef axis_integ_env;
+  typedef axis_test_base;
 
   // Group: UVM Components
   `include "axis_vseq.sv"
@@ -29,6 +30,7 @@ package axis_integ_pkg;
 
   // Group: tests
   `include "axis_test_base.sv"
+  `include "axis_smoke_test.sv"
 
 endpackage : axis_integ_pkg
 

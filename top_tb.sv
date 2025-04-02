@@ -7,9 +7,11 @@
 `include "axis_if.sv"
 
 // Conditional compile on DUT instantiation
-`ifndef AXI_FIFO_TEST
 `define AXI_FIFO_TEST 
-`endif
+
+// Conditional compile on reset interruptions
+// `define RST_TEST
+
 
 module top_tb;
   /*  package imports  */
@@ -19,7 +21,14 @@ module top_tb;
 
   localparam CLK_PERIOD = 2;
   logic ACLK;
-  logic ARESETn;
+  logic ARESETn = 1;
+
+`ifdef RST_TEST
+  // randomize resets
+  int num_rst = 0;
+  int rst_delay;
+  int rst_duration;
+`endif
 
   axis_if #(
       .TDATA_WIDTH(TDATA_WIDTH),
@@ -34,7 +43,7 @@ module top_tb;
 
 `ifdef AXI_FIFO_TEST
 
-  parameter int DEPTH = 16;
+  parameter int DEPTH = 8;
 
   axis_if #(
       .TDATA_WIDTH(TDATA_WIDTH),
@@ -84,14 +93,32 @@ module top_tb;
   );
 `endif
 
+  // CLOCK GENERATION
   initial begin
     ACLK = 1'b1;
-    forever #CLK_PERIOD ACLK = ~ACLK;
+    forever #(CLK_PERIOD / 2) ACLK = ~ACLK;
   end
 
+
+  // RESET BLOCK
   initial begin
+    // NOTE: initial, common for all tests
     ARESETn = 1'b0;
-    #0.5 ARESETn = 1'b1;
+    #2 ARESETn = 1'b1;
+
+`ifdef RST_TEST
+    // NOTE: Randomly generate reset signals given `num_rst` `rst_delay` and `rst_duration`
+    repeat (num_rst) begin
+      if (!std::randomize(rst_delay) with {rst_delay inside {[2 : 50]};})
+        `uvm_fatal("top_tb", "Failed to randomize reset delay.")
+      if (!std::randomize(rst_duration) with {rst_duration inside {[1 : 10]};})
+        `uvm_fatal("top_tb", "Failed to randomize reset duration.")
+
+      #rst_delay ARESETn = 1'b0;
+      #rst_duration ARESETn = 1'b1;
+    end
+`endif
+
   end
 
   initial begin

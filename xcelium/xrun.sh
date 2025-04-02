@@ -16,8 +16,8 @@ seed=100008653
 echo "Running seed: $seed"
 
 VERBOSITY="+UVM_VERBOSITY=UVM_MEDIUM"
-#TEST="axis_transfer_smoke_test"
-TEST="axis_test_base"
+TEST="axis_smoke_test"
+# TEST="axis_test_base"
 GUI=""
 
 if [ $1 ]; then

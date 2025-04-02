@@ -37,6 +37,12 @@ class axis_transfer extends uvm_sequence_item;
   */
   rand bit [(TDATA_WIDTH/8)-1:0] tstrb;
 
+  /* delay:
+    - Holds a delay to be applied prior to sending this item.
+    - This delay is an integer and represents a number of clock cycles.
+  */
+  rand int unsigned delay;
+
   /* tlast
     - indicates transfer is the last in the packet.
     - defaults to 1 for cases where no concept of packet is present.
@@ -52,12 +58,6 @@ class axis_transfer extends uvm_sequence_item;
   *   - used for custom comparer.
   */
   string miscompares = "";
-
-  /* delay:
-    - Holds a delay to be applied prior to sending this item.
-    - This delay is an integer and represents a number of clock cycles.
-  */
-  rand int unsigned delay;
 
   // Utils
   `uvm_object_utils_begin(axis_transfer)

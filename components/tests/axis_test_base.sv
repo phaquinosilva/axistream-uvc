@@ -208,7 +208,7 @@ class axis_test_base extends uvm_component;
 
     num_samples = 2;
     seq_size = 10;
-    #clk_period;
+    //#clk_period;
     repeat (num_samples) begin
       foreach (m_env.m_agts[i]) begin
         randomize_seq(i, m_env.m_agts[i].m_cfg, tseq, pseq, seq_size);
@@ -216,8 +216,8 @@ class axis_test_base extends uvm_component;
       vseq.start(null);
     end  // repeat
 
-    // #(100 * num_samples * seq_size * clk_period);
-    #1000;
+    #(2 * num_samples * seq_size * clk_period);
+    // #1000;
 
     phase.drop_objection(this);
 
@@ -233,8 +233,8 @@ class axis_test_base extends uvm_component;
       - Randomizes a sequence.
       - Constraints should be set here.
   */
-  function randomize_seq(int i, ref axis_config agt_config, ref axis_transfer_seq tseq[],
-                         ref axis_packet_seq pseq[], int seq_size);
+  virtual function randomize_seq(int i, ref axis_config agt_config, ref axis_transfer_seq tseq[],
+                                 ref axis_packet_seq pseq[], int seq_size);
     if (agt_config.use_transfers) begin
       case (agt_config.device_type)
         RECEIVER: begin
@@ -266,7 +266,6 @@ class axis_test_base extends uvm_component;
                 foreach (p_data[k]) p_data[k] == 0;
                 foreach (p_keep[k]) p_keep[k] == 0;
                 foreach (p_strb[k]) p_strb[k] == 0;
-                foreach (delays[k]) delays[k] == 0;
 
               })
             `uvm_fatal(report_id, "Unable to randomize pseq.")
@@ -275,11 +274,7 @@ class axis_test_base extends uvm_component;
                     ), UVM_NONE)
         end  // receiver
         TRANSMITTER: begin
-          if (!pseq[i].randomize() with {
-                size == seq_size;
-                foreach (p_data[k]) p_data[k] != 0;
-                foreach (delays[k]) delays[k] == 0;
-              })
+          if (!pseq[i].randomize() with {size == seq_size;})
             `uvm_fatal(report_id, "Unable to randomize seq.")
           `uvm_info(report_id, $sformatf(
                     "Randomized packet for %s: \n%s", agt_config.device_type.name, pseq[i].sprint()
@@ -289,7 +284,7 @@ class axis_test_base extends uvm_component;
       endcase
     end  // if
 
-  endfunction
+  endfunction : randomize_seq
 
 endclass : axis_test_base
 
