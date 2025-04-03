@@ -19,7 +19,7 @@ task axis_driver::run_phase_transmitter();
   `uvm_info(report_id, "Started run_phase for driver.", UVM_LOW)
 
   forever begin
-    if (!vif.ARESETn) reset_transmitter();
+    if (vif.ARESETn !== 1) reset_transmitter();
     fork
       main_transmitter();
       @(negedge vif.ARESETn);
@@ -66,31 +66,26 @@ endtask : main_transmitter
   - This task implements this handshake procedure and drives the current transfer.
 */
 task axis_driver::drive_transfer_transmitter(axis_transfer item);
-  `uvm_info(report_id, $sformatf("Driving the item:\n%s", item.sprint()), UVM_FULL)
+  string report_id = $sformatf("%s.drive_transfer_transmitter", this.report_id);
+
   repeat (item.delay) @(posedge vif.ACLK);
 
-  begin : DRIVE_BUS
-    vif.TVALID = 1'b1;
-    vif.TDATA  = item.tdata;
-    vif.TKEEP  = item.tkeep;
-    vif.TSTRB  = item.tstrb;
-    vif.TLAST  = item.tlast;
-  end
+  vif.TVALID = 1'b1;
+  vif.TDATA = item.tdata;
+  vif.TKEEP = item.tkeep;
+  vif.TSTRB = item.tstrb;
+  vif.TLAST = item.tlast;
+  vif.TID = item.tlast;
+  vif.TDEST = item.tlast;
+  vif.TUSER = item.tlast;
 
-  // NOTE: cannot drive TVALID = 0 until a TREADY is received
-  `uvm_info(report_id,
-            $sformatf("Waiting for handshake to drive item: \nTVALID=%d ARESETn=%d at time=%d",
-                      vif.TVALID, vif.ARESETn, $time), UVM_FULL)
+  // Wait for handshake to complete
+  @(posedge vif.ACLK iff (vif.TREADY === 1 && vif.TVALID === 1));
 
-  // Supports all possible handshake combinations
-  // * TVALID before TREADY
-  // * TVALID after TREADY
-  // * TVALID and TREADY at the same time
-  if (!vif.TREADY) @(posedge vif.TREADY);
+  // Deassert TVALID after handshake
+  vif.TVALID = 1'b0;
 
-  // turn control signals off after handshake
-  @(posedge vif.ACLK) vif.TVALID = 0;
-
+  `uvm_info(report_id, $sformatf("Finished driving the item:\n%s", item.sprint()), UVM_DEBUG)
 endtask : drive_transfer_transmitter
 
 `endif

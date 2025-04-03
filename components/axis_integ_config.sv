@@ -24,6 +24,11 @@ class axis_integ_config extends uvm_object;
   */
   bit has_scoreboard = 0;
 
+  /* fixed_seq_size
+    - Flag to indicate whether the packet size should be fixed or randomized.
+  */
+  bit fixed_seq_size = 0;
+
   //  Group: Constraints
   `uvm_object_utils_begin(axis_integ_config)
     `uvm_field_array_object(axis_config_obj, UVM_DEFAULT)

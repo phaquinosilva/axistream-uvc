@@ -58,6 +58,10 @@ class axis_integ_env extends uvm_env;
     if (m_cfg.has_scoreboard) begin
       if (m_cfg.get_n_agts() == 2) begin
         m_scbd = axis_scoreboard::type_id::create("m_scbd", this);
+
+        m_scbd.m_cfg_transmitter = m_agts[0].m_cfg.device_type == TRANSMITTER ? m_agts[0].m_cfg : m_agts[1].m_cfg;
+        m_scbd.m_cfg_receiver = m_agts[0].m_cfg.device_type == RECEIVER ? m_agts[0].m_cfg : m_agts[1].m_cfg;
+
       end else begin
         `uvm_fatal(report, "Component axis_scoreboard only works with 2 agents.")
       end

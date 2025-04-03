@@ -10,6 +10,11 @@ class axis_smoke_test extends axis_test_base;
     this.report_id = name;
   endfunction : new
 
+  function randomize_n_samples();
+    this.num_samples = 2;
+    this.seq_size = 10;
+  endfunction : randomize_n_samples
+
 
   /* Function: randomize seq
 
@@ -26,6 +31,9 @@ class axis_smoke_test extends axis_test_base;
                 tdata == 0;
                 tkeep == 0;
                 tstrb == 0;
+                tid == 0;
+                tuser == 0;
+                tdest == 0;
               })
             `uvm_fatal(report_id, "Unable to randomize seq.")
           `uvm_info(report_id, $sformatf(
@@ -51,7 +59,9 @@ class axis_smoke_test extends axis_test_base;
                 foreach (p_keep[k]) p_keep[k] == 0;
                 foreach (p_strb[k]) p_strb[k] == 0;
                 foreach (delays[k]) delays[k] == 0;
-
+                tid == 0;
+                tuser == 0;
+                tdest == 0;
               })
             `uvm_fatal(report_id, "Unable to randomize pseq.")
           `uvm_info(report_id, $sformatf(

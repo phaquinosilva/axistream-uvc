@@ -20,6 +20,8 @@ class axis_monitor extends uvm_monitor;
 
   string report_id = "";
 
+  event handshake = null;
+
   //  Group: Functions
   function void build_phase(uvm_phase phase);
     string report = $sformatf("%s.build_phase", report_id);
@@ -40,35 +42,54 @@ class axis_monitor extends uvm_monitor;
 
   task run_phase(uvm_phase phase);
     string report = $sformatf("%s.run_phase", report_id);
-    axis_transfer item = axis_transfer::type_id::create("item");
-
-
     super.run_phase(phase);
-    `uvm_info(report, $sformatf("run_phase for %s", get_full_name()), UVM_NONE);
+    `uvm_info(report, $sformatf("Starting run_phase for %s", get_full_name()), UVM_NONE)
 
     forever begin
-      // wait for valid data
-      // if (!(vif.TVALID == 1)) @(posedge vif.TVALID);
-      // if (!(vif.TREADY == 1)) @(posedge vif.TREADY);
-      //do @(posedge vif.ACLK); while (!(vif.TVALID && vif.TREADY));
-      wait (vif.TVALID && vif.TREADY);
+      @(posedge vif.ARESETn iff (vif.ARESETn === 1));
 
-      @(negedge vif.ACLK);
-      if (m_cfg.TDATA_ENABLE) item.tdata <= vif.TDATA;
-      if (m_cfg.TKEEP_ENABLE) item.tkeep <= vif.TKEEP;
-      if (m_cfg.TLAST_ENABLE) item.tlast <= vif.TLAST;
-      if (m_cfg.TSTRB_ENABLE) item.tstrb <= vif.TSTRB;
-      `uvm_info(report, $sformatf("MON_%s: ITEM\n%s", m_cfg.device_type.name, item.sprint()),
-                UVM_FULL)
-
-      @(posedge vif.ACLK);
-      item.timestamp = $time;
-      transfer_ap.write(item);
+      fork
+        main_monitor();
+        @(negedge vif.ARESETn iff (vif.ARESETn === 0));
+      join_any
+      disable fork;
     end
 
     `uvm_info(report, $sformatf("run_phase for %s", get_full_name()), UVM_NONE)
   endtask : run_phase
 
+
+  task main_monitor();
+    string report = $sformatf("%s.main_monitor_%s", report_id, m_cfg.device_type.name);
+    `uvm_info(report, $sformatf("Starting main_monitor for %s", get_full_name()), UVM_NONE)
+
+    forever begin
+      axis_transfer item;
+
+      // Wait for handshake
+      if (m_cfg.device_type == RECEIVER) @(handshake);
+      else @(posedge vif.ACLK iff (vif.TVALID === 1 && vif.TREADY === 1));
+
+      item = axis_transfer::type_id::create("item");
+      if (m_cfg.TDATA_ENABLE) item.tdata = vif.TDATA;
+      if (m_cfg.TKEEP_ENABLE) item.tkeep = vif.TKEEP;
+      if (m_cfg.TLAST_ENABLE) item.tlast = vif.TLAST;
+      if (m_cfg.TSTRB_ENABLE) item.tstrb = vif.TSTRB;
+      if (m_cfg.TDEST_ENABLE) item.tdest = vif.TDEST;
+      if (m_cfg.TUSER_ENABLE) item.tuser = vif.TUSER;
+      if (m_cfg.TID_ENABLE) item.tid = vif.TID;
+
+      item.timestamp = $time;
+      `uvm_info(report, $sformatf(
+                "MON_%s: Captured ITEM\n%s\n{TVALID,TREADY}=%0d%0d",
+                m_cfg.device_type.name,
+                item.sprint(),
+                vif.TVALID,
+                vif.TREADY
+                ), UVM_FULL)
+      transfer_ap.write(item);
+    end
+  endtask : main_monitor
 
   function new(string name = "axis_monitor", uvm_component parent);
     super.new(name, parent);

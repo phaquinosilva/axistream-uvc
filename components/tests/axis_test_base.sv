@@ -24,6 +24,8 @@ class axis_test_base extends uvm_component;
 
   //  Group: Variables
   protected string report_id = "";
+  protected int num_samples;
+  protected int seq_size;
 
   //  Constructor: new
   function new(string name = "axis_test_base", uvm_component parent);
@@ -71,8 +73,14 @@ class axis_test_base extends uvm_component;
     cfg_item_master.vip_id = 0;
     cfg_item_slave.vip_id = 1;
 
-    cfg_item_master.set_options(.device_type(TRANSMITTER), .use_packets(1), .use_transfers(0));
-    cfg_item_slave.set_options(.device_type(RECEIVER), .use_packets(1), .use_transfers(0));
+    cfg_item_master.set_options(.device_type(TRANSMITTER), .use_packets(1), .use_transfers(0),
+                                .TDATA_ENABLE(1), .TKEEP_ENABLE(1), .TLAST_ENABLE(1),
+                                .TSTRB_ENABLE(1), .TID_ENABLE(0), .TDEST_ENABLE(0),
+                                .TUSER_ENABLE(0));
+    cfg_item_slave.set_options(.device_type(RECEIVER), .use_packets(1), .use_transfers(0),
+                               .TDATA_ENABLE(1), .TKEEP_ENABLE(1), .TLAST_ENABLE(1),
+                               .TSTRB_ENABLE(1), .TID_ENABLE(0), .TDEST_ENABLE(0),
+                               .TUSER_ENABLE(0));
 
     m_env_cfg = axis_integ_config::type_id::create(.name("m_env_cfg"));
     m_env_cfg.has_scoreboard = 1;
@@ -186,37 +194,27 @@ class axis_test_base extends uvm_component;
       - Randomizes a sequence and starts it.
   */
   task run_phase(uvm_phase phase);
-    int num_samples;
-    int clk_period;
-    int seq_size;
-
-    if (!uvm_config_db#(int)::get(null, "uvm_test_top.m_env", "CLK_PERIOD", clk_period))
-      `uvm_fatal(report_id, "Unable to find clock period for test.")
-    `uvm_info(report_id, $sformatf("Clock period for test is %1d.", clk_period), UVM_NONE)
-
-    if (!std::randomize(num_samples) with {num_samples inside {[2 : 100]};})
-      `uvm_fatal(report_id, "Unable to randomize num_samples")
-    `uvm_info(report_id, $sformatf("Running %0d samples", num_samples), UVM_NONE)
-
-    if (!std::randomize(seq_size) with {num_samples inside {[2 : 100]};})
-      `uvm_fatal(report_id, "Unable to randomize seq_size")
-    `uvm_info(report_id, $sformatf("Running %0d samples", num_samples), UVM_NONE)
-
     phase.raise_objection(this);
     `uvm_info(report_id, $sformatf("Starting run_phase for %s, objection raised.",
                                    this.get_full_name()), UVM_NONE)
 
-    num_samples = 2;
-    seq_size = 10;
-    //#clk_period;
+    randomize_n_samples();
     repeat (num_samples) begin
+
+      if (!m_env_cfg.fixed_seq_size) begin
+        if (!std::randomize(seq_size) with {seq_size inside {[2 : 100]};})
+          `uvm_fatal(report_id, "Unable to randomize seq_size")
+        `uvm_info(report_id, $sformatf("Running %0d samples", num_samples), UVM_NONE)
+      end
+
       foreach (m_env.m_agts[i]) begin
         randomize_seq(i, m_env.m_agts[i].m_cfg, tseq, pseq, seq_size);
       end
       vseq.start(null);
+
     end  // repeat
 
-    #(2 * num_samples * seq_size * clk_period);
+    #(2 * num_samples * seq_size);
     // #1000;
 
     phase.drop_objection(this);
@@ -226,6 +224,26 @@ class axis_test_base extends uvm_component;
   endtask : run_phase
 
 
+  /* Function: randomize n_samples
+
+    Description:
+      - Randomizes a number of samples and sequence size for test.
+      - If sequence
+      - Constraints should be set here.
+  */
+  virtual function randomize_n_samples();
+
+    if (!std::randomize(num_samples) with {num_samples inside {[2 : 100]};})
+      `uvm_fatal(report_id, "Unable to randomize num_samples")
+    `uvm_info(report_id, $sformatf("Running %0d samples", num_samples), UVM_NONE)
+
+    if (m_env_cfg.fixed_seq_size) begin
+      if (!std::randomize(seq_size) with {seq_size inside {[2 : 100]};})
+        `uvm_fatal(report_id, "Unable to randomize seq_size")
+      `uvm_info(report_id, $sformatf("Running %0d samples", num_samples), UVM_NONE)
+    end
+
+  endfunction : randomize_n_samples
 
   /* Function: randomize seq
 
@@ -242,6 +260,9 @@ class axis_test_base extends uvm_component;
                 tdata == 0;
                 tkeep == 0;
                 tstrb == 0;
+                tid == 0;
+                tuser == 0;
+                tdest == 0;
               })
             `uvm_fatal(report_id, "Unable to randomize seq.")
           `uvm_info(report_id, $sformatf(
@@ -266,7 +287,9 @@ class axis_test_base extends uvm_component;
                 foreach (p_data[k]) p_data[k] == 0;
                 foreach (p_keep[k]) p_keep[k] == 0;
                 foreach (p_strb[k]) p_strb[k] == 0;
-
+                tid == 0;
+                tuser == 0;
+                tdest == 0;
               })
             `uvm_fatal(report_id, "Unable to randomize pseq.")
           `uvm_info(report_id, $sformatf(

@@ -66,6 +66,8 @@ class axis_agent extends uvm_agent;
     m_drv.seq_item_port.connect(m_transfer_seqr.seq_item_export);
     `uvm_info(report_id, $sformatf("Finishing connect_phase for %s", this.get_full_name()), UVM_LOW)
 
+    if (m_cfg.device_type == RECEIVER) m_mon.handshake = m_drv.handshake;
+
   endfunction : connect_phase
 
 

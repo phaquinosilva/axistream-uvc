@@ -22,6 +22,7 @@ class axis_driver extends uvm_driver #(axis_transfer);
 
   // Group: Variables
   protected string report_id = "";
+  event handshake;
 
   //  Constructor: new
   function new(string name = "axis_driver", uvm_component parent);
