@@ -26,6 +26,9 @@ class axis_packet_seq extends uvm_sequence #(axis_transfer);
   rand bit          [    TDATA_WIDTH-1:0] p_data   [];
   rand bit          [(TDATA_WIDTH/8)-1:0] p_keep   [];
   rand bit          [(TDATA_WIDTH/8)-1:0] p_strb   [];
+  rand bit          [  (TID_WIDTH/8)-1:0] tid;
+  rand bit          [(TUSER_WIDTH/8)-1:0] tuser;
+  rand bit          [(TDEST_WIDTH/8)-1:0] tdest;
 
   /* delay:
       - Holds a delay to be applied prior to sending this item.
@@ -40,6 +43,9 @@ class axis_packet_seq extends uvm_sequence #(axis_transfer);
     `uvm_field_array_int(p_keep, UVM_DEFAULT | UVM_HEX)
     `uvm_field_array_int(p_strb, UVM_DEFAULT | UVM_HEX)
     `uvm_field_array_int(delays, UVM_DEFAULT | UVM_DEC)
+    `uvm_field_int(tid, UVM_NOCOMPARE | UVM_BIN)
+    `uvm_field_int(tdest, UVM_NOCOMPARE | UVM_BIN)
+    `uvm_field_int(tuser, UVM_NOCOMPARE | UVM_BIN)
   `uvm_object_utils_end
 
   // Group: Constraints
@@ -90,6 +96,9 @@ class axis_packet_seq extends uvm_sequence #(axis_transfer);
             tdata == local:: p_data[i];
             tkeep == local:: p_keep[i];
             tstrb == local:: p_strb[i];
+            tid == local:: tid;
+            tuser == local:: tuser;
+            tdest == local:: tdest;
             delay == local:: delays[i];
           })
         `uvm_fatal(report_id, $sformatf("Unable to randomize m_item for %s", this.get_full_name()))

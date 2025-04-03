@@ -10,7 +10,7 @@
 `define AXI_FIFO_TEST 
 
 // Conditional compile on reset interruptions
-// `define RST_TEST
+`define RST_TEST 
 
 
 module top_tb;

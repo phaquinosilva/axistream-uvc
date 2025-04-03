@@ -20,6 +20,10 @@ class axis_transfer_seq extends uvm_sequence #(axis_transfer);
   // Byte qualifiers
   rand bit [(TDATA_WIDTH/8)-1:0] tkeep;
   rand bit [(TDATA_WIDTH/8)-1:0] tstrb;
+  rand bit [(TID_WIDTH/8)-1:0] tid;
+  rand bit [(TUSER_WIDTH/8)-1:0] tuser;
+  rand bit [(TDEST_WIDTH/8)-1:0] tdest;
+
 
   rand int unsigned delay;
 
@@ -44,6 +48,9 @@ class axis_transfer_seq extends uvm_sequence #(axis_transfer);
     `uvm_field_int(tkeep, UVM_DEFAULT | UVM_BIN)
     `uvm_field_int(tstrb, UVM_DEFAULT | UVM_BIN)
     `uvm_field_int(delay, UVM_DEFAULT | UVM_TIME)
+    `uvm_field_int(tid, UVM_NOCOMPARE | UVM_BIN)
+    `uvm_field_int(tdest, UVM_NOCOMPARE | UVM_BIN)
+    `uvm_field_int(tuser, UVM_NOCOMPARE | UVM_BIN)
   `uvm_object_utils_end
 
 
@@ -70,6 +77,9 @@ class axis_transfer_seq extends uvm_sequence #(axis_transfer);
           tdata == local:: tdata;
           tkeep == local:: tkeep;
           tstrb == local:: tstrb;
+          tid == local:: tid;
+          tdest == local:: tdest;
+          tuser == local:: tuser;
           delay == local:: delay;
         })
       `uvm_fatal(report_id, $sformatf("Unable to randomize m_item for %s", this.get_full_name()))

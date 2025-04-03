@@ -8,7 +8,7 @@
 
 $(CURRENT_PATH)/rtl/axis_fifo.v
 $(CURRENT_PATH)/axis_if.sv
-$(CURRENT_PATH)/vip/axis_uvc.sv
+$(CURRENT_PATH)/vip/axis_uvc_pkg.sv
 $(CURRENT_PATH)/axis_integ_pkg.sv
 
 $(CURRENT_PATH)/top_tb.sv

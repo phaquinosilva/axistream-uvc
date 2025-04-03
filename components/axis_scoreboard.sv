@@ -15,6 +15,10 @@ class axis_scoreboard extends uvm_scoreboard;
   axis_transfer transmitter_transfer_q[$];
   axis_transfer receiver_transfer_q[$];
 
+  axis_integ_config m_cfg;
+  axis_config m_cfg_transmitter;
+  axis_config m_cfg_receiver;
+
   //  Group: Variables
   protected string report_id = "";
 
@@ -44,6 +48,34 @@ class axis_scoreboard extends uvm_scoreboard;
     `uvm_info(report_id, $sformatf("Received item from RECEIVER: \n%s", item.sprint()), UVM_NONE)
   endfunction
 
+
+  virtual function void extract_phase(uvm_phase phase);
+    string report_id = $sformatf("%s.extract_phase", this.report_id);
+    `uvm_info(report_id, $sformatf("Cleaning up data that is not propagated for %s", get_full_name()
+              ), UVM_NONE)
+    super.extract_phase(phase);
+
+    foreach (transmitter_transfer_q[i]) begin
+      if (!m_cfg_transmitter.TDATA_ENABLE) transmitter_transfer_q[i].tdata = '0;
+      if (!m_cfg_transmitter.TKEEP_ENABLE) transmitter_transfer_q[i].tkeep = '1;
+      if (!m_cfg_transmitter.TSTRB_ENABLE) transmitter_transfer_q[i].tstrb = '1;
+      if (!m_cfg_transmitter.TLAST_ENABLE) transmitter_transfer_q[i].tlast = '1;
+      if (!m_cfg_transmitter.TDEST_ENABLE) transmitter_transfer_q[i].tdest = '0;
+      if (!m_cfg_transmitter.TUSER_ENABLE) transmitter_transfer_q[i].tuser = '0;
+      if (!m_cfg_transmitter.TID_ENABLE) transmitter_transfer_q[i].tid = '0;
+    end
+
+    foreach (receiver_transfer_q[i]) begin
+      if (!m_cfg_receiver.TDATA_ENABLE) receiver_transfer_q[i].tdata = '0;
+      if (!m_cfg_receiver.TKEEP_ENABLE) receiver_transfer_q[i].tkeep = '1;
+      if (!m_cfg_receiver.TSTRB_ENABLE) receiver_transfer_q[i].tstrb = '1;
+      if (!m_cfg_receiver.TLAST_ENABLE) receiver_transfer_q[i].tlast = '1;
+      if (!m_cfg_receiver.TDEST_ENABLE) receiver_transfer_q[i].tdest = '0;
+      if (!m_cfg_receiver.TUSER_ENABLE) receiver_transfer_q[i].tuser = '0;
+      if (!m_cfg_receiver.TID_ENABLE) receiver_transfer_q[i].tid = '0;
+    end
+
+  endfunction : extract_phase
 
   virtual function void check_phase(uvm_phase phase);
     string report_id = $sformatf("%s.check_phase", this.report_id);
