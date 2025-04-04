@@ -81,6 +81,25 @@ class axis_transfer extends uvm_sequence_item;
 
   //  Group: Constraints
 
+  function bit do_compare(uvm_object rhs, uvm_comparer comparer);
+    axis_transfer rhs_;
+    do_compare = 1;
+    if (!$cast(rhs_, rhs))
+      `uvm_fatal($sformatf("%s.do_compare", get_full_name()), "Unable to cast rhs.")
+
+    do_compare &= comparer.compare_field("tdata", this.tdata, rhs_.tdata, TDATA_WIDTH, UVM_HEX);
+    do_compare &= comparer.compare_field("tkeep", this.tkeep, rhs_.tkeep, TDATA_WIDTH / 8, UVM_HEX);
+    do_compare &= comparer.compare_field("tstrb", this.tstrb, rhs_.tstrb, TDATA_WIDTH / 8, UVM_HEX);
+    do_compare &= comparer.compare_field("tlast", this.tlast, rhs_.tlast, 1, UVM_HEX);
+    do_compare &= comparer.compare_field("tid", this.tid, rhs_.tid, TID_WIDTH, UVM_HEX);
+    do_compare &= comparer.compare_field("tuser", this.tuser, rhs_.tuser, TUSER_WIDTH, UVM_HEX);
+    do_compare &= comparer.compare_field("tdest", this.tdest, rhs_.tdest, TDEST_WIDTH, UVM_HEX);
+
+    this.miscompares = comparer.miscompares;
+  endfunction
+
+
+
   //  Constructor: new
   function new(string name = "axis_transfer");
     super.new(name);

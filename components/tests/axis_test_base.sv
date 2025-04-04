@@ -7,11 +7,13 @@
 `ifndef axis_test_base__sv
 `define axis_test_base__sv
 
+`define PACKET_SIZE 10
+`define N_SAMPLES 5
 
 class axis_test_base extends uvm_component;
   `uvm_component_utils(axis_test_base)
 
-  //  Group: Configuration Object(s)
+  //  Group: Configuration Obaect(s)
   axis_integ_config m_env_cfg;
 
   //  Group: Components
@@ -74,12 +76,10 @@ class axis_test_base extends uvm_component;
     cfg_item_slave.vip_id = 1;
 
     cfg_item_master.set_options(.device_type(TRANSMITTER), .use_packets(1), .use_transfers(0),
-                                .TDATA_ENABLE(1), .TKEEP_ENABLE(1), .TLAST_ENABLE(1),
-                                .TSTRB_ENABLE(1), .TID_ENABLE(0), .TDEST_ENABLE(0),
+                                .stream_type(SPARSE), .TID_ENABLE(0), .TDEST_ENABLE(0),
                                 .TUSER_ENABLE(0));
     cfg_item_slave.set_options(.device_type(RECEIVER), .use_packets(1), .use_transfers(0),
-                               .TDATA_ENABLE(1), .TKEEP_ENABLE(1), .TLAST_ENABLE(1),
-                               .TSTRB_ENABLE(1), .TID_ENABLE(0), .TDEST_ENABLE(0),
+                               .stream_type(SPARSE), .TID_ENABLE(0), .TDEST_ENABLE(0),
                                .TUSER_ENABLE(0));
 
     m_env_cfg = axis_integ_config::type_id::create(.name("m_env_cfg"));
@@ -138,10 +138,24 @@ class axis_test_base extends uvm_component;
   // ===========================================================================
 
   function void connect_phase(uvm_phase phase);
-    axis_config agt_config;
     super.connect_phase(phase);
-    `uvm_info(report_id, $sformatf("Starting connect_phase for %s.", this.get_full_name()),
-              UVM_NONE)
+
+  endfunction : connect_phase
+
+  // ===========================================================================
+  // ========================= end_of_elaboration_phase ========================
+  // ===========================================================================
+
+  /* Function: end_of_elaboration_phase
+
+    Description:
+      - 
+  */
+  function void end_of_elaboration_phase(uvm_phase phase);
+    axis_config agt_config;
+    super.end_of_elaboration_phase(phase);
+    `uvm_info(report_id, $sformatf("Starting end_of_elaboration_phase for %s.", this.get_full_name()
+              ), UVM_NONE)
 
     vseq = axis_vseq::type_id::create("vseq");
 
@@ -154,33 +168,39 @@ class axis_test_base extends uvm_component;
       agt_config = m_env.m_agts[i].m_cfg;
       if (agt_config.use_transfers) begin
         tseq[i] = axis_transfer_seq::type_id::create($sformatf("tseq[%1d]", i));
+        if (agt_config.device_type == RECEIVER) pseq[i].set_only_delay(1);
         vseq.m_transfer_seq[i] = tseq[i];
       end
       if (agt_config.use_packets) begin
         pseq[i] = axis_packet_seq::type_id::create($sformatf("vseq[%1d]", i));
+        pseq[i].set_stream_type(agt_config.stream_type);
+
+        // Set constraints to only randomize the delays in the receiver agent
+        if (agt_config.device_type == RECEIVER) pseq[i].set_only_delay(1);
+
         vseq.m_pkt_seq[i] = pseq[i];
       end
     end  // foreach
 
-    `uvm_info(report_id, $sformatf("Finishing connect_phase for %s.", this.get_full_name()),
-              UVM_NONE)
+    `uvm_info(report_id, $sformatf(
+              "Finishing end_of_elaboration_phase for %s.", this.get_full_name()), UVM_NONE)
 
-  endfunction : connect_phase
+  endfunction : end_of_elaboration_phase
 
 
   // ===========================================================================
-  // ========================= end_of_elaboration_phase ========================
+  // ========================= start_of_simulation_phase =======================
   // ===========================================================================
 
-  /* Function: end_of_elaboration_phase
+  /* Function: start_of_simulation_phase
 
     Description:
       - Print the test topology.
   */
-  function void end_of_elaboration_phase(uvm_phase phase);
+  function void start_of_simulation_phase(uvm_phase phase);
     super.end_of_elaboration_phase(phase);
     if (uvm_top.get_report_verbosity_level() > UVM_LOW) uvm_top.print_topology();
-  endfunction : end_of_elaboration_phase
+  endfunction : start_of_simulation_phase
 
 
   // ===========================================================================
@@ -198,7 +218,7 @@ class axis_test_base extends uvm_component;
     `uvm_info(report_id, $sformatf("Starting run_phase for %s, objection raised.",
                                    this.get_full_name()), UVM_NONE)
 
-    randomize_n_samples();
+    randomize_test_setup();
     repeat (num_samples) begin
 
       if (!m_env_cfg.fixed_seq_size) begin
@@ -215,7 +235,6 @@ class axis_test_base extends uvm_component;
     end  // repeat
 
     #(2 * num_samples * seq_size);
-    // #1000;
 
     phase.drop_objection(this);
 
@@ -231,19 +250,26 @@ class axis_test_base extends uvm_component;
       - If sequence
       - Constraints should be set here.
   */
-  virtual function randomize_n_samples();
-
+  virtual function randomize_test_setup();
+`ifdef N_SAMPLES
+    num_samples = `N_SAMPLES;
+`else
     if (!std::randomize(num_samples) with {num_samples inside {[2 : 100]};})
       `uvm_fatal(report_id, "Unable to randomize num_samples")
-    `uvm_info(report_id, $sformatf("Running %0d samples", num_samples), UVM_NONE)
+`endif
 
+    `uvm_info(report_id, $sformatf("Running %0d samples", num_samples), UVM_NONE)
+`ifdef PACKET_SIZE
+    seq_size = `PACKET_SIZE;
+`else
     if (m_env_cfg.fixed_seq_size) begin
       if (!std::randomize(seq_size) with {seq_size inside {[2 : 100]};})
         `uvm_fatal(report_id, "Unable to randomize seq_size")
-      `uvm_info(report_id, $sformatf("Running %0d samples", num_samples), UVM_NONE)
     end
+`endif
 
-  endfunction : randomize_n_samples
+  endfunction : randomize_test_setup
+
 
   /* Function: randomize seq
 
@@ -253,6 +279,7 @@ class axis_test_base extends uvm_component;
   */
   virtual function randomize_seq(int i, ref axis_config agt_config, ref axis_transfer_seq tseq[],
                                  ref axis_packet_seq pseq[], int seq_size);
+
     if (agt_config.use_transfers) begin
       case (agt_config.device_type)
         RECEIVER: begin
@@ -282,16 +309,7 @@ class axis_test_base extends uvm_component;
     if (agt_config.use_packets) begin
       case (agt_config.device_type)
         RECEIVER: begin
-          if (!pseq[i].randomize() with {
-                size == seq_size;
-                foreach (p_data[k]) p_data[k] == 0;
-                foreach (p_keep[k]) p_keep[k] == 0;
-                foreach (p_strb[k]) p_strb[k] == 0;
-                tid == 0;
-                tuser == 0;
-                tdest == 0;
-              })
-            `uvm_fatal(report_id, "Unable to randomize pseq.")
+          if (!pseq[i].randomize()) `uvm_fatal(report_id, "Unable to randomize pseq.")
           `uvm_info(report_id, $sformatf(
                     "Randomized packet for %s: \n%s", agt_config.device_type.name, pseq[i].sprint()
                     ), UVM_NONE)

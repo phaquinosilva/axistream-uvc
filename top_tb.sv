@@ -10,7 +10,7 @@
 `define AXI_FIFO_TEST 
 
 // Conditional compile on reset interruptions
-`define RST_TEST 
+// `define RST_TEST 
 
 
 module top_tb;
@@ -25,7 +25,7 @@ module top_tb;
 
 `ifdef RST_TEST
   // randomize resets
-  int num_rst = 0;
+  int num_rst = 10;
   int rst_delay;
   int rst_duration;
 `endif

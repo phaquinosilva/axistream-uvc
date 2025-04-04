@@ -23,7 +23,7 @@ package axis_uvc_pkg;
 
   //  Group: Parameters
   /* AXI-Stream Properties */
-  localparam int TDATA_WIDTH = 8;
+  localparam int TDATA_WIDTH = 128;
   localparam int TDEST_WIDTH = 8;
   localparam int TUSER_WIDTH = 1;
   localparam int TID_WIDTH = 8;
@@ -47,9 +47,11 @@ package axis_uvc_pkg;
 
   // Stream types
   typedef enum {
+    BYTE,
     CONT_ALIGNED,
     CONT_UNALIGNED,
-    SPARSE
+    SPARSE,
+    CUSTOM
   } stream_t;
 
   // Agent type

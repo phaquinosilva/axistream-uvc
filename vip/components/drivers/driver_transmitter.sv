@@ -70,22 +70,22 @@ task axis_driver::drive_transfer_transmitter(axis_transfer item);
 
   repeat (item.delay) @(posedge vif.ACLK);
 
-  vif.TVALID = 1'b1;
-  vif.TDATA = item.tdata;
-  vif.TKEEP = item.tkeep;
-  vif.TSTRB = item.tstrb;
-  vif.TLAST = item.tlast;
-  vif.TID = item.tlast;
-  vif.TDEST = item.tlast;
-  vif.TUSER = item.tlast;
+  vif.TVALID <= 1'b1;
+  vif.TDATA <= item.tdata;
+  vif.TKEEP <= item.tkeep;
+  vif.TSTRB <= item.tstrb;
+  vif.TLAST <= item.tlast;
+  vif.TID <= item.tlast;
+  vif.TDEST <= item.tlast;
+  vif.TUSER <= item.tlast;
 
   // Wait for handshake to complete
   @(posedge vif.ACLK iff (vif.TREADY === 1 && vif.TVALID === 1));
 
   // Deassert TVALID after handshake
-  vif.TVALID = 1'b0;
+  vif.TVALID <= 1'b0;
 
-  `uvm_info(report_id, $sformatf("Finished driving the item:\n%s", item.sprint()), UVM_DEBUG)
+  `uvm_info(report_id, $sformatf("Finished driving the item:\n%s", item.sprint()), UVM_NONE)
 endtask : drive_transfer_transmitter
 
 `endif

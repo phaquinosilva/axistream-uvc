@@ -69,16 +69,16 @@ task axis_driver::drive_transfer_receiver(axis_transfer item);
 
   // start not ready to receive
   repeat (item.delay) @(posedge vif.ACLK);
-  vif.TREADY = 1'b1;
+  vif.TREADY <= 1'b1;
 
   // Wait for handshake to complete
   @(posedge vif.ACLK iff (vif.TREADY === 1 && vif.TVALID === 1));
   ->handshake;
 
   // Deassert TVALID after handshake
-  vif.TREADY = 1'b0;
+  vif.TREADY <= 1'b0;
 
-  `uvm_info(report_id, $sformatf("Finished driving item on receiver"), UVM_DEBUG)
+  `uvm_info(report_id, $sformatf("Finished driving item on receiver"), UVM_NONE)
 
 endtask : drive_transfer_receiver
 

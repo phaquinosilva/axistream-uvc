@@ -31,13 +31,10 @@ class axis_integ_env extends uvm_env;
     `uvm_info(report, $sformatf("Starting build_phase for %s", get_full_name()), UVM_NONE)
 
     if (!uvm_config_db#(axis_integ_config)::get(this, "", "m_cfg", m_cfg))
-      `uvm_fatal(report_id, $sformatf("Error to get axis_integ_config for %s", this.get_full_name()
-                 ))
+      `uvm_fatal(report, $sformatf("Error to get axis_integ_config for %s", this.get_full_name()))
 
     m_agts = new[m_cfg.get_n_agts()];
     vifs   = new[m_cfg.get_n_agts()];
-
-    `uvm_info(report, "Allocated m_agts and vifs in env", UVM_NONE)
 
     foreach (m_agts[i]) begin
       string agt_id = $sformatf("m_agts[%1d]", i);
@@ -60,7 +57,7 @@ class axis_integ_env extends uvm_env;
         m_scbd = axis_scoreboard::type_id::create("m_scbd", this);
 
         m_scbd.m_cfg_transmitter = m_agts[0].m_cfg.device_type == TRANSMITTER ? m_agts[0].m_cfg : m_agts[1].m_cfg;
-        m_scbd.m_cfg_receiver = m_agts[0].m_cfg.device_type == RECEIVER ? m_agts[0].m_cfg : m_agts[1].m_cfg;
+        m_scbd.m_cfg_receiver = m_agts[1].m_cfg.device_type == RECEIVER ? m_agts[1].m_cfg : m_agts[1].m_cfg;
 
       end else begin
         `uvm_fatal(report, "Component axis_scoreboard only works with 2 agents.")

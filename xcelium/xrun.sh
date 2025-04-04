@@ -15,8 +15,8 @@ seed=$(((RANDOM % 999999999 )  + 100000000))
 echo "Running seed: $seed"
 
 VERBOSITY="+UVM_VERBOSITY=UVM_MEDIUM"
-# TEST="axis_smoke_test"
-TEST="axis_test_base"
+TEST="axis_smoke_test"
+# TEST="axis_test_base"
 GUI=""
 
 if [ $1 ]; then

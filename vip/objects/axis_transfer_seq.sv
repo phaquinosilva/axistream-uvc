@@ -24,13 +24,11 @@ class axis_transfer_seq extends uvm_sequence #(axis_transfer);
   rand bit [(TUSER_WIDTH/8)-1:0] tuser;
   rand bit [(TDEST_WIDTH/8)-1:0] tdest;
 
-
   rand int unsigned delay;
 
+  protected bit only_delay = 0;
   //  Group: Constraints
-
   constraint delay_c {delay inside {[0 : 100]};}
-
 
   constraint strb_keep_c {
     // Guarantee TSTRB is active only if TKEEP
@@ -40,7 +38,21 @@ class axis_transfer_seq extends uvm_sequence #(axis_transfer);
     soft &((~tkeep & ~tstrb) | tkeep);
   }
 
-  //  Group: Functions
+  constraint only_delay_c {
+    if (only_delay) {
+      tid == 0;
+      tuser == 0;
+      tdest == 0;
+      tstrb == 0;
+      tkeep == 0;
+      tdata == 0;
+    }
+  }
+
+  function set_only_delay(bit mode);
+    this.only_delay = mode;
+    this.only_delay_c.constraint_mode(mode);
+  endfunction
 
   // Utils
   `uvm_object_utils_begin(axis_transfer_seq)

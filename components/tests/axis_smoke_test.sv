@@ -10,12 +10,6 @@ class axis_smoke_test extends axis_test_base;
     this.report_id = name;
   endfunction : new
 
-  function randomize_n_samples();
-    this.num_samples = 2;
-    this.seq_size = 10;
-  endfunction : randomize_n_samples
-
-
   /* Function: randomize seq
 
     Description:
@@ -53,16 +47,7 @@ class axis_smoke_test extends axis_test_base;
     if (agt_config.use_packets) begin
       case (agt_config.device_type)
         RECEIVER: begin
-          if (!pseq[i].randomize() with {
-                size == seq_size;
-                foreach (p_data[k]) p_data[k] == 0;
-                foreach (p_keep[k]) p_keep[k] == 0;
-                foreach (p_strb[k]) p_strb[k] == 0;
-                foreach (delays[k]) delays[k] == 0;
-                tid == 0;
-                tuser == 0;
-                tdest == 0;
-              })
+          if (!pseq[i].randomize() with {size == seq_size;})
             `uvm_fatal(report_id, "Unable to randomize pseq.")
           `uvm_info(report_id, $sformatf(
                     "Randomized packet for %s: \n%s", agt_config.device_type.name, pseq[i].sprint()

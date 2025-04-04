@@ -18,7 +18,7 @@ class axis_config extends uvm_object;
   port_t   device_type    = TRANSMITTER;
 
   /* Stream type: CONT_ALIGNED, CONT_UNALIGNED or SPARSE. */
-  stream_t stream_type    = CONT_ALIGNED;
+  stream_t stream_type    = SPARSE;
 
   /* Sequence config:
   *  - if both use_packets and use_frames are deasserted
@@ -83,22 +83,27 @@ class axis_config extends uvm_object;
                        bit TDATA_ENABLE = 1, bit TKEEP_ENABLE = (TDATA_WIDTH > 7),
                        bit TLAST_ENABLE = 1, bit TSTRB_ENABLE = 0, bit TID_ENABLE = 0,
                        bit TDEST_ENABLE = 0, bit TUSER_ENABLE = 0);
+
     /* UVC configuration */
-    this.device_type   = device_type;
-    this.stream_type   = stream_type;
-    this.use_packets   = use_packets;
-    this.use_frames    = use_frames;
+    this.device_type = device_type;
+    this.stream_type = stream_type;
+    this.use_packets = use_packets;
+    this.use_frames = use_frames;
     // always set use_transfers to 1 if use_packets and use_frames are deasserted.
     this.use_transfers = !(use_packets | use_frames) | use_transfers;
 
     /* Bus configuration */
-    this.TDATA_ENABLE  = TDATA_ENABLE;
-    this.TKEEP_ENABLE  = TKEEP_ENABLE;
-    this.TLAST_ENABLE  = TLAST_ENABLE | use_packets;
-    this.TSTRB_ENABLE  = TSTRB_ENABLE;
-    this.TID_ENABLE    = TID_ENABLE;
-    this.TDEST_ENABLE  = TDEST_ENABLE;
-    this.TUSER_ENABLE  = TUSER_ENABLE;
+    this.TDATA_ENABLE = TDATA_ENABLE;
+    // no null bytes in CONT_*  or SPARSE streams
+    this.TKEEP_ENABLE = TKEEP_ENABLE && stream_type inside {BYTE, CUSTOM};
+    // no position bytes in CONT_ALIGNED streams
+    this.TSTRB_ENABLE = TSTRB_ENABLE && !(stream_type inside {CONT_ALIGNED});
+
+    // packet signaling
+    this.TLAST_ENABLE = TLAST_ENABLE | use_packets;
+    this.TID_ENABLE = TID_ENABLE;
+    this.TDEST_ENABLE = TDEST_ENABLE;
+    this.TUSER_ENABLE = TUSER_ENABLE;
   endfunction
 
   function new(string name = "axis_config");
