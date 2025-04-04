@@ -10,6 +10,14 @@ class axis_smoke_test extends axis_test_base;
     this.report_id = name;
   endfunction : new
 
+  function randomize_n_samples();
+    m_env_cfg.num_samples = 10;
+    m_env_cfg.seq_size = 10;
+    m_env_cfg.fixed_seq_size = 1;
+    `uvm_info(report_id, $sformatf("Running %0d samples", m_env_cfg.num_samples), UVM_NONE)
+  endfunction : randomize_n_samples
+
+
   /* Function: randomize seq
 
     Description:
@@ -22,12 +30,7 @@ class axis_smoke_test extends axis_test_base;
       case (agt_config.device_type)
         RECEIVER: begin
           if (!tseq[i].randomize() with {
-                tdata == 0;
-                tkeep == 0;
-                tstrb == 0;
-                tid == 0;
-                tuser == 0;
-                tdest == 0;
+                // delay == 0;
               })
             `uvm_fatal(report_id, "Unable to randomize seq.")
           `uvm_info(report_id, $sformatf(
@@ -47,7 +50,10 @@ class axis_smoke_test extends axis_test_base;
     if (agt_config.use_packets) begin
       case (agt_config.device_type)
         RECEIVER: begin
-          if (!pseq[i].randomize() with {size == seq_size;})
+          if (!pseq[i].randomize() with {
+                size == m_env_cfg.seq_size;
+                foreach (delays[k]) delays[k] != 0;
+              })
             `uvm_fatal(report_id, "Unable to randomize pseq.")
           `uvm_info(report_id, $sformatf(
                     "Randomized packet for %s: \n%s", agt_config.device_type.name, pseq[i].sprint()

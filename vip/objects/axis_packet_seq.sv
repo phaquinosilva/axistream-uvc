@@ -43,6 +43,7 @@ class axis_packet_seq extends uvm_sequence #(axis_transfer);
   *   - sequence, and maintained constant in the testbench.
   */
   protected stream_t                       stream_type    = SPARSE;
+
   // Strobe signaling required for CONT_UNALIGNED streams
   rand int                                 strb_start     = 1;
   rand int                                 strb_end       = 1;

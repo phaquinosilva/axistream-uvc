@@ -17,7 +17,7 @@ class axis_config extends uvm_object;
   /* Port type: TRANSMITTER or RECEIVER */
   port_t   device_type    = TRANSMITTER;
 
-  /* Stream type: CONT_ALIGNED, CONT_UNALIGNED or SPARSE. */
+  /* Stream type: BYTE, CONT_ALIGNED, CONT_UNALIGNED, SPARSE or CUSTOM. */
   stream_t stream_type    = SPARSE;
 
   /* Sequence config:
