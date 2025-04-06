@@ -43,7 +43,6 @@ class axis_smoke_test extends axis_test_base;
                 "axis_config item_%1d : \n%s", i, m_env_cfg.get_config(i).sprint()), UVM_FULL)
     end
 
-
   endfunction : build_phase_create_cfg
 
 
@@ -61,23 +60,23 @@ class axis_smoke_test extends axis_test_base;
       - Randomizes a sequence.
       - Constraints should be set here.
   */
-  function randomize_seq(int i, ref axis_config agt_config, ref axis_transfer_seq tseq[],
-                         ref axis_packet_seq pseq[], int seq_size);
+  function randomize_seq(int i, ref axis_config agt_config, ref axis_transfer_seq tseq,
+                         ref axis_packet_seq pseq, int seq_size);
     if (agt_config.use_transfers) begin
       case (agt_config.device_type)
         RECEIVER: begin
-          if (!tseq[i].randomize() with {delay != 0;})
+          if (!tseq.randomize() with {delay == 0;})
             `uvm_fatal(report_id, "Unable to randomize seq.")
           `uvm_info(report_id, $sformatf(
-                    "Randomized transfer for %s \n%s", agt_config.device_type.name, tseq[i].sprint()
-                    ), UVM_NONE)
+                    "Randomized transfer for %s \n%s", agt_config.device_type.name, tseq.sprint()),
+                    UVM_NONE)
         end  // receiver
         TRANSMITTER: begin
-          if (!tseq[i].randomize() with {delay != 0;})
+          if (!tseq.randomize() with {delay == 0;})
             `uvm_fatal(report_id, "Unable to randomize tseq.")
           `uvm_info(report_id, $sformatf(
-                    "Randomized transfer for %s \n%s", agt_config.device_type.name, tseq[i].sprint()
-                    ), UVM_NONE)
+                    "Randomized transfer for %s \n%s", agt_config.device_type.name, tseq.sprint()),
+                    UVM_NONE)
         end  // transmitter
         default: `uvm_fatal(report_id, "Invalid device type.")
       endcase
@@ -86,25 +85,24 @@ class axis_smoke_test extends axis_test_base;
     if (agt_config.use_packets) begin
       case (agt_config.device_type)
         RECEIVER: begin
-          if (!pseq[i].randomize() with {
+          if (!pseq.randomize() with {
                 size == m_env_cfg.seq_size;
-                foreach (delays[k]) delays[k] == 0;
+                foreach (delays[i]) delays[i] != 0;
               })
             `uvm_fatal(report_id, "Unable to randomize pseq.")
           `uvm_info(report_id, $sformatf(
-                    "Randomized packet for %s: \n%s", agt_config.device_type.name, pseq[i].sprint()
-                    ), UVM_NONE)
+                    "Randomized packet for %s: \n%s", agt_config.device_type.name, pseq.sprint()),
+                    UVM_NONE)
         end  // receiver
         TRANSMITTER: begin
-          if (!pseq[i].randomize() with {
+          if (!pseq.randomize() with {
                 size == seq_size;
-                foreach (p_data[k]) p_data[k] != 0;
-                foreach (delays[k]) delays[k] == 0;
+                foreach (delays[i]) delays[i] == 0;
               })
             `uvm_fatal(report_id, "Unable to randomize seq.")
           `uvm_info(report_id, $sformatf(
-                    "Randomized packet for %s: \n%s", agt_config.device_type.name, pseq[i].sprint()
-                    ), UVM_NONE)
+                    "Randomized packet for %s: \n%s", agt_config.device_type.name, pseq.sprint()),
+                    UVM_NONE)
         end  // transmitter
         default: `uvm_fatal(report_id, "Invalid device type.")
       endcase
@@ -114,4 +112,5 @@ class axis_smoke_test extends axis_test_base;
 
 
 endclass : axis_smoke_test
+
 `endif

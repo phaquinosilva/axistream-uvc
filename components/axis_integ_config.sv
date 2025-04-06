@@ -27,7 +27,7 @@ class axis_integ_config extends uvm_object;
   /* fixed_seq_size
     - Flag to indicate whether the packet size should be fixed or randomized.
   */
-  bit fixed_seq_size = 0;
+  bit fixed_seq_size = 1;
   int num_samples = 0;
   int seq_size = 0;
 
@@ -39,6 +39,7 @@ class axis_integ_config extends uvm_object;
   `uvm_object_utils_end
 
   //  Group: Functions
+
 
   /* set_agt_configs
     - Sets the number of agents in the env and saves their configs.
@@ -62,6 +63,7 @@ class axis_integ_config extends uvm_object;
       this.axis_config_obj[i] = configs[i];
     end
   endfunction : set_agt_configs
+
 
   function axis_config get_config(int idx);
     if (this.n_agts == 0 || this.axis_config_obj.size() == 0)

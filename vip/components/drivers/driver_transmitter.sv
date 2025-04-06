@@ -82,7 +82,8 @@ task axis_driver::drive_transfer_transmitter(axis_transfer item);
   // vif_mutex.put(1);
 
   // Wait for handshake to complete
-  @(posedge vif.ACLK iff (vif.TREADY === 1 && vif.TVALID === 1));
+  @(negedge vif.ACLK iff (vif.TREADY === 1 && vif.TVALID === 1));
+  @(posedge vif.ACLK);
 
   // Deassert TVALID after handshake
   vif.TVALID = 1'b0;
