@@ -43,7 +43,7 @@ module top_tb;
 
 `ifdef AXI_FIFO_TEST
 
-  parameter int DEPTH = 8;
+  parameter int DEPTH = 2 ** 10;
 
   axis_if #(
       .TDATA_WIDTH(TDATA_WIDTH),
@@ -62,6 +62,8 @@ module top_tb;
       .ID_W(TID_WIDTH),
       .DEST_W(TDEST_WIDTH),
       .USER_W(TUSER_WIDTH),
+      .KEEP_EN(1'b1),
+      .STRB_EN(1'b1),
       .OUTPUT_FIFO_EN(0)
   ) dut (
       .clk(ACLK),

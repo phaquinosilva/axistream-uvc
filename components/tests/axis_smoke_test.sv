@@ -10,6 +10,43 @@ class axis_smoke_test extends axis_test_base;
     this.report_id = name;
   endfunction : new
 
+  /* Function: build_phase_create_cfg
+
+    Description:
+      - Creates the agent configuration objects and sets them in the env configuration
+  */
+  function void build_phase_create_cfg(uvm_phase phase);
+    axis_config cfg_item_master, cfg_item_slave;
+    string report_id = $sformatf("%s.build_phase_create_cfg", this.report_id);
+
+    cfg_item_master = axis_config::type_id::create("cfg_item_master");
+    cfg_item_slave = axis_config::type_id::create("cfg_item_slave");
+
+    cfg_item_master.vip_id = 0;
+    cfg_item_slave.vip_id = 1;
+
+    cfg_item_master.set_options(.device_type(TRANSMITTER), .use_packets(1), .use_transfers(0),
+                                .stream_type(CONT_UNALIGNED), .TKEEP_ENABLE(1), .TSTRB_ENABLE(1));
+    cfg_item_slave.set_options(.device_type(RECEIVER), .use_packets(1), .use_transfers(0),
+                               .stream_type(CONT_UNALIGNED), .TKEEP_ENABLE(1), .TSTRB_ENABLE(1));
+
+    m_env_cfg = axis_integ_config::type_id::create(.name("m_env_cfg"));
+    m_env_cfg.has_scoreboard = 1;
+    m_env_cfg.set_agt_configs(2, '{cfg_item_master, cfg_item_slave});
+    `uvm_info(
+        report_id, $sformatf(
+        "Created config items for %1d agents in %s.", m_env_cfg.get_n_agts(), this.get_full_name()),
+        UVM_LOW)
+
+    for (int i = 0; i < m_env_cfg.get_n_agts(); i++) begin
+      `uvm_info(report_id, $sformatf(
+                "axis_config item_%1d : \n%s", i, m_env_cfg.get_config(i).sprint()), UVM_FULL)
+    end
+
+
+  endfunction : build_phase_create_cfg
+
+
   function randomize_n_samples();
     m_env_cfg.num_samples = 10;
     m_env_cfg.seq_size = 10;
@@ -29,16 +66,15 @@ class axis_smoke_test extends axis_test_base;
     if (agt_config.use_transfers) begin
       case (agt_config.device_type)
         RECEIVER: begin
-          if (!tseq[i].randomize() with {
-                // delay == 0;
-              })
+          if (!tseq[i].randomize() with {delay != 0;})
             `uvm_fatal(report_id, "Unable to randomize seq.")
           `uvm_info(report_id, $sformatf(
                     "Randomized transfer for %s \n%s", agt_config.device_type.name, tseq[i].sprint()
                     ), UVM_NONE)
         end  // receiver
         TRANSMITTER: begin
-          if (!tseq[i].randomize()) `uvm_fatal(report_id, "Unable to randomize tseq.")
+          if (!tseq[i].randomize() with {delay != 0;})
+            `uvm_fatal(report_id, "Unable to randomize tseq.")
           `uvm_info(report_id, $sformatf(
                     "Randomized transfer for %s \n%s", agt_config.device_type.name, tseq[i].sprint()
                     ), UVM_NONE)
@@ -52,7 +88,7 @@ class axis_smoke_test extends axis_test_base;
         RECEIVER: begin
           if (!pseq[i].randomize() with {
                 size == m_env_cfg.seq_size;
-                foreach (delays[k]) delays[k] != 0;
+                foreach (delays[k]) delays[k] == 0;
               })
             `uvm_fatal(report_id, "Unable to randomize pseq.")
           `uvm_info(report_id, $sformatf(

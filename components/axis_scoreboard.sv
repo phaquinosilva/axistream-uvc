@@ -56,26 +56,21 @@ class axis_scoreboard extends uvm_scoreboard;
     super.extract_phase(phase);
 
     foreach (transmitter_transfer_q[i]) begin
-      if (!m_cfg_transmitter.TDATA_ENABLE) transmitter_transfer_q[i].tdata = '0;
-      if (!m_cfg_transmitter.TKEEP_ENABLE) transmitter_transfer_q[i].tkeep = '1;
-      if (!m_cfg_transmitter.TSTRB_ENABLE) transmitter_transfer_q[i].tstrb = '1;
-      if (!m_cfg_transmitter.TLAST_ENABLE) transmitter_transfer_q[i].tlast = '1;
-      if (!m_cfg_transmitter.TDEST_ENABLE) transmitter_transfer_q[i].tdest = '0;
-      if (!m_cfg_transmitter.TUSER_ENABLE) transmitter_transfer_q[i].tuser = '0;
-      if (!m_cfg_transmitter.TID_ENABLE) transmitter_transfer_q[i].tid = '0;
-    end
-
-    foreach (receiver_transfer_q[i]) begin
-      if (!m_cfg_receiver.TDATA_ENABLE) receiver_transfer_q[i].tdata = '0;
-      if (!m_cfg_receiver.TKEEP_ENABLE) receiver_transfer_q[i].tkeep = '1;
-      if (!m_cfg_receiver.TSTRB_ENABLE) receiver_transfer_q[i].tstrb = '1;
-      if (!m_cfg_receiver.TLAST_ENABLE) receiver_transfer_q[i].tlast = '1;
-      if (!m_cfg_receiver.TDEST_ENABLE) receiver_transfer_q[i].tdest = '0;
-      if (!m_cfg_receiver.TUSER_ENABLE) receiver_transfer_q[i].tuser = '0;
-      if (!m_cfg_receiver.TID_ENABLE) receiver_transfer_q[i].tid = '0;
+      clear_disabled_sig(m_cfg_transmitter, transmitter_transfer_q[i]);
+      clear_disabled_sig(m_cfg_receiver, receiver_transfer_q[i]);
     end
 
   endfunction : extract_phase
+
+  function clear_disabled_sig(axis_config cfg, axis_transfer txn);
+    if (!cfg.TDATA_ENABLE) txn.tdata = '0;
+    if (!cfg.TKEEP_ENABLE) txn.tkeep = '1;
+    if (!cfg.TSTRB_ENABLE) txn.tstrb = '1;
+    if (!cfg.TLAST_ENABLE) txn.tlast = '1;
+    if (!cfg.TDEST_ENABLE) txn.tdest = '0;
+    if (!cfg.TUSER_ENABLE) txn.tuser = '0;
+    if (!cfg.TID_ENABLE) txn.tid = '0;
+  endfunction
 
   virtual function void check_phase(uvm_phase phase);
     string report_id = $sformatf("%s.check_phase", this.report_id);

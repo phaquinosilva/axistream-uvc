@@ -35,7 +35,7 @@ class axis_transfer_seq extends uvm_sequence #(axis_transfer);
     // is active for that byte position
     // If TKEEP[x] == 0, TSTRB[x] == 0;
     // IF TKEEP[x] == 1, TSTRB[x] == any
-    soft &((~tkeep & ~tstrb) | tkeep);
+    foreach (tkeep[k]) tkeep[k] == 0 -> tstrb == 0;
   }
 
   constraint only_delay_c {

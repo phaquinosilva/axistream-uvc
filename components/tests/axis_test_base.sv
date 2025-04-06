@@ -70,14 +70,8 @@ class axis_test_base extends uvm_component;
     cfg_item_master.vip_id = 0;
     cfg_item_slave.vip_id = 1;
 
-    cfg_item_master.set_options(.device_type(TRANSMITTER), .use_packets(0), .use_transfers(1),
-                                .stream_type(CONT_ALIGNED), .TDATA_ENABLE(1), .TKEEP_ENABLE(1),
-                                .TLAST_ENABLE(1), .TSTRB_ENABLE(1), .TID_ENABLE(0),
-                                .TDEST_ENABLE(0), .TUSER_ENABLE(0));
-    cfg_item_slave.set_options(.device_type(RECEIVER), .use_packets(0), .use_transfers(1),
-                               .stream_type(CONT_ALIGNED), .TDATA_ENABLE(1), .TKEEP_ENABLE(1),
-                               .TLAST_ENABLE(1), .TSTRB_ENABLE(1), .TID_ENABLE(0), .TDEST_ENABLE(0),
-                               .TUSER_ENABLE(0));
+    cfg_item_master.set_options(.device_type(TRANSMITTER));
+    cfg_item_slave.set_options(.device_type(RECEIVER));
 
     m_env_cfg = axis_integ_config::type_id::create(.name("m_env_cfg"));
     m_env_cfg.has_scoreboard = 1;
@@ -216,10 +210,8 @@ class axis_test_base extends uvm_component;
     end  // repeat
 
     #(2 * m_env_cfg.num_samples * m_env_cfg.seq_size);
-    // #1000;
 
     phase.drop_objection(this);
-
     `uvm_info(report_id, $sformatf("Finished run_phase for %s, objection dropped.",
                                    this.get_full_name()), UVM_NONE)
   endtask : run_phase

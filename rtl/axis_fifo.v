@@ -193,7 +193,7 @@ module axis_fifo #(
 
   assign mem_wr_data[DATA_W-1:0] = s_axis_tdata;
   if (KEEP_EN) assign mem_wr_data[KEEP_OFFSET+:KEEP_W] = s_axis_tkeep;
-  if (STRB_EN) assign mem_wr_data[STRB_OFFSET+:KEEP_W] = s_axis_tkeep;
+  if (STRB_EN) assign mem_wr_data[STRB_OFFSET+:KEEP_W] = s_axis_tstrb;
   if (LAST_EN) assign mem_wr_data[LAST_OFFSET] = s_axis_tlast | mark_frame_reg;
   if (ID_EN) assign mem_wr_data[ID_OFFSET+:ID_W] = s_axis_tid;
   if (DEST_EN) assign mem_wr_data[DEST_OFFSET+:DEST_W] = s_axis_tdest;

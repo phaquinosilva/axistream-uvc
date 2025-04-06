@@ -95,9 +95,9 @@ class axis_config extends uvm_object;
     /* Bus configuration */
     this.TDATA_ENABLE = TDATA_ENABLE;
     // no null bytes in CONT_*  or SPARSE streams
-    this.TKEEP_ENABLE = TKEEP_ENABLE && stream_type inside {BYTE, CUSTOM};
+    this.TKEEP_ENABLE = TKEEP_ENABLE || stream_type inside {BYTE, CUSTOM};
     // no position bytes in CONT_ALIGNED streams
-    this.TSTRB_ENABLE = TSTRB_ENABLE && !(stream_type inside {CONT_ALIGNED});
+    this.TSTRB_ENABLE = TSTRB_ENABLE || stream_type != CONT_ALIGNED;
 
     // packet signaling
     this.TLAST_ENABLE = TLAST_ENABLE | use_packets;

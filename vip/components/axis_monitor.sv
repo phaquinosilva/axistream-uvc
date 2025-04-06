@@ -13,6 +13,7 @@ class axis_monitor extends uvm_monitor;
 
   //  Group: Components
   vif_t vif;
+  semaphore vif_mutex;
 
   //  Group: Variables
   uvm_analysis_port #(axis_transfer) transfer_ap;
@@ -64,20 +65,21 @@ class axis_monitor extends uvm_monitor;
     `uvm_info(report, $sformatf("Starting main_monitor for %s", get_full_name()), UVM_NONE)
 
     forever begin
-      axis_transfer item;
+      axis_transfer item = axis_transfer::type_id::create("item");
 
       // Wait for handshake
       if (m_cfg.device_type == RECEIVER) @(handshake);
       else @(posedge vif.ACLK iff (vif.TVALID === 1 && vif.TREADY === 1));
 
-      item = axis_transfer::type_id::create("item");
-      if (m_cfg.TDATA_ENABLE) item.tdata = vif.TDATA;
-      if (m_cfg.TKEEP_ENABLE) item.tkeep = vif.TKEEP;
-      if (m_cfg.TLAST_ENABLE) item.tlast = vif.TLAST;
-      if (m_cfg.TSTRB_ENABLE) item.tstrb = vif.TSTRB;
-      if (m_cfg.TDEST_ENABLE) item.tdest = vif.TDEST;
-      if (m_cfg.TUSER_ENABLE) item.tuser = vif.TUSER;
-      if (m_cfg.TID_ENABLE) item.tid = vif.TID;
+      // vif_mutex.get(1);
+      item.tstrb = vif.TSTRB;
+      item.tdata = vif.TDATA;
+      item.tkeep = vif.TKEEP;
+      item.tlast = vif.TLAST;
+      item.tdest = vif.TDEST;
+      item.tuser = vif.TUSER;
+      item.tid = vif.TID;
+      // vif_mutex.put(1);
 
       item.timestamp = $time;
       `uvm_info(report, $sformatf(

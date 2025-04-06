@@ -12,11 +12,12 @@ class axis_vseq extends uvm_sequence;
   axis_transfer_seqr m_transfer_seqr[];
 
   //  Group: Sequences
-  axis_packet_seq m_pkt_seq[];
-  axis_transfer_seq m_transfer_seq[];
+  axis_packet_seq m_pkt_seq[][$];
+  axis_transfer_seq m_transfer_seq[][$];
 
   //  Group: Variables
   protected string report_id = "";
+
 
   function setup_vseq(axis_integ_config cfg);
     this.m_cfg = cfg;
@@ -26,7 +27,6 @@ class axis_vseq extends uvm_sequence;
   endfunction
 
   //  Group: Tasks
-
 
   virtual task body;
     axis_config agt_cfg;

@@ -61,6 +61,8 @@ class axis_packet_seq extends uvm_sequence #(axis_transfer);
     `uvm_field_int(tid, UVM_NOCOMPARE | UVM_BIN)
     `uvm_field_int(tdest, UVM_NOCOMPARE | UVM_BIN)
     `uvm_field_int(tuser, UVM_NOCOMPARE | UVM_BIN)
+    `uvm_field_int(strb_start, UVM_NOCOMPARE | UVM_DEC)
+    `uvm_field_int(strb_end, UVM_NOCOMPARE | UVM_DEC)
   `uvm_object_utils_end
 
   //  Group: Constraints
@@ -89,7 +91,7 @@ class axis_packet_seq extends uvm_sequence #(axis_transfer);
     // is active for that byte position
     // If TKEEP[x] == 0, TSTRB[x] == 0;
     // IF TKEEP[x] == 1, TSTRB[x] == any
-    foreach (p_keep[i]) &((~p_keep[i] & ~p_strb[i]) | p_keep[i]);
+    foreach (p_keep[i]) foreach (p_keep[i][j]) p_keep[i][j] == 0 -> p_strb[i][j] == 0;
   }
 
   constraint stream_t_c {
@@ -114,10 +116,10 @@ class axis_packet_seq extends uvm_sequence #(axis_transfer);
       foreach (p_strb[i]) if (i != 0 && i != this.size - 1) p_strb[i] == '1;
       // position bytes should only appear in boundary transfers
       // and be contiguous within this transfer
-      strb_start inside {[0 : $bits(p_strb[0])]};
-      strb_end inside {[0 : $bits(p_strb[0])]};
+      strb_start inside {[0 : $bits(p_strb[0]) - 1]};
+      strb_end inside {[0 : $bits(p_strb[0]) - 1]};
       foreach (p_strb[0][j]) p_strb[0][j] == (j >= strb_start);
-      foreach (p_strb[size-1][j]) p_strb[size-1][j] == (j < strb_end);
+      foreach (p_strb[size-1][j]) p_strb[size-1][$bits(p_strb[0])-1-j] == (j >= strb_end);
     }
 
     /* 1.2.4 no null bytes */

@@ -16,6 +16,7 @@ class axis_driver extends uvm_driver #(axis_transfer);
 
   //  Group: Components
   vif_t vif;
+  semaphore vif_mutex;
 
   //  Group: Config objects
   axis_config m_cfg;

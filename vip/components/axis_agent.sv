@@ -25,6 +25,7 @@ class axis_agent extends uvm_agent;
 
   //  Group: Variables
   protected string   report_id       = "";
+  static semaphore   vif_mutex;
 
 
   //  Group: Functions
@@ -52,6 +53,9 @@ class axis_agent extends uvm_agent;
     // remaining components
     m_drv = axis_driver::type_id::create("m_drv", this);
     m_mon = axis_monitor::type_id::create("m_mon", this);
+    vif_mutex = new(1);
+    m_drv.vif_mutex = vif_mutex;
+    m_mon.vif_mutex = vif_mutex;
 
     `uvm_info(report_id, $sformatf("Finishing build_phase for %s", this.get_full_name()), UVM_LOW)
 
