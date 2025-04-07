@@ -92,7 +92,6 @@ class axis_packet extends uvm_object;
         this.miscompares, $sformatf("transfers[%0d]", i), rhs_.transfers[i].miscompares
       };
     end
-
   endfunction
 
 

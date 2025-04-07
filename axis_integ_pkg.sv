@@ -26,6 +26,7 @@ package axis_integ_pkg;
   `include "axis_vseq.sv"
   `include "axis_scoreboard.sv"
   `include "axis_integ_config.sv"
+  `include "axis_cov_model.sv"
   `include "axis_integ_env.sv"
 
   // Group: tests

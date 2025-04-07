@@ -25,10 +25,10 @@ class axis_smoke_test extends axis_test_base;
     cfg_item_master.vip_id = 0;
     cfg_item_slave.vip_id = 1;
 
-    cfg_item_master.set_options(.device_type(TRANSMITTER), .use_packets(1), .use_transfers(0),
-                                .stream_type(CONT_UNALIGNED), .TKEEP_ENABLE(1), .TSTRB_ENABLE(1));
-    cfg_item_slave.set_options(.device_type(RECEIVER), .use_packets(1), .use_transfers(0),
-                               .stream_type(CONT_UNALIGNED), .TKEEP_ENABLE(1), .TSTRB_ENABLE(1));
+    cfg_item_master.set_options(.device_type(TRANSMITTER), .use_packets(1),
+                                .stream_type(CONT_UNALIGNED));
+    cfg_item_slave.set_options(.device_type(RECEIVER), .use_packets(1),
+                               .stream_type(CONT_UNALIGNED));
 
     m_env_cfg = axis_integ_config::type_id::create(.name("m_env_cfg"));
     m_env_cfg.has_scoreboard = 1;
@@ -45,13 +45,14 @@ class axis_smoke_test extends axis_test_base;
 
   endfunction : build_phase_create_cfg
 
-
+  /*
   function void randomize_n_samples();
     m_env_cfg.num_samples = 10;
     m_env_cfg.seq_size = 10;
     m_env_cfg.fixed_seq_size = 1;
     `uvm_info(report_id, $sformatf("Running %0d samples", m_env_cfg.num_samples), UVM_NONE)
-  endfunction : randomize_n_samples
+  endfunction : randomize_n_samples 
+  */
 
 
   /* Function: randomize seq

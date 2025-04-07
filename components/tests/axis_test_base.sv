@@ -76,10 +76,11 @@ class axis_test_base extends uvm_component;
 
     m_env_cfg = axis_integ_config::type_id::create(.name("m_env_cfg"));
     m_env_cfg.has_scoreboard = 1;
+    m_env_cfg.coverage_enable = 0;
     m_env_cfg.set_agt_configs(2, '{cfg_item_master, cfg_item_slave});
     `uvm_info(
         report_id, $sformatf(
-        "Created config items for %1d agents in %s.", m_env_cfg.get_n_agts(), this.get_full_name()),
+        "Setup config items for %1d agents in %s.", m_env_cfg.get_n_agts(), this.get_full_name()),
         UVM_LOW)
 
     for (int i = 0; i < m_env_cfg.get_n_agts(); i++) begin
@@ -252,9 +253,12 @@ class axis_test_base extends uvm_component;
     Description:
       - Randomizes a sequence.
       - Constraints should be set here.
+      - Returns number of transfers expected in the interface.
   */
-  virtual function void randomize_seq(int i, ref axis_config agt_config, ref axis_transfer_seq tseq,
-                                      ref axis_packet_seq pseq, int seq_size);
+  virtual function int randomize_seq(int i, ref axis_config agt_config, ref axis_transfer_seq tseq,
+                                     ref axis_packet_seq pseq, int seq_size);
+    int source_trn = 0;
+    int sink_trn = 0;
     `uvm_info("axis_test_base", "started randomize", UVM_NONE)
     if (agt_config.use_transfers) begin
       case (agt_config.device_type)
@@ -263,12 +267,14 @@ class axis_test_base extends uvm_component;
           `uvm_info(report_id, $sformatf(
                     "Randomized transfer for %s \n%s", agt_config.device_type.name, tseq.sprint()),
                     UVM_NONE)
+          sink_trn += 1;
         end  // receiver
         TRANSMITTER: begin
           if (!tseq.randomize()) `uvm_fatal(report_id, "Unable to randomize tseq.")
           `uvm_info(report_id, $sformatf(
                     "Randomized transfer for %s \n%s", agt_config.device_type.name, tseq.sprint()),
                     UVM_NONE)
+          source_trn += 1;
         end  // transmitter
         default: `uvm_fatal(report_id, "Invalid device type.")
       endcase
@@ -282,6 +288,7 @@ class axis_test_base extends uvm_component;
           `uvm_info(report_id, $sformatf(
                     "Randomized packet for %s: \n%s", agt_config.device_type.name, pseq.sprint()),
                     UVM_NONE)
+          sink_trn += pseq.size();
         end  // receiver
         TRANSMITTER: begin
           if (!pseq.randomize() with {size == seq_size;})
@@ -289,6 +296,7 @@ class axis_test_base extends uvm_component;
           `uvm_info(report_id, $sformatf(
                     "Randomized packet for %s: \n%s", agt_config.device_type.name, pseq.sprint()),
                     UVM_NONE)
+          src_trn += pseq.size();
         end  // transmitter
         default: `uvm_fatal(report_id, "Invalid device type.")
       endcase

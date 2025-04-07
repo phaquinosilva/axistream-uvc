@@ -104,16 +104,16 @@ module top_tb;
 
   // RESET BLOCK
   initial begin
-    // NOTE: initial, common for all tests
     ARESETn = 1'b0;
     #2 ARESETn = 1'b1;
+
 
 `ifdef RST_TEST
     // NOTE: Randomly generate reset signals given `num_rst` `rst_delay` and `rst_duration`
     repeat (num_rst) begin
-      if (!std::randomize(rst_delay) with {rst_delay inside {[2 : 50]};})
+      if (!std::randomize(rst_delay) with {rst_delay inside {[0 : 100]};})
         `uvm_fatal("top_tb", "Failed to randomize reset delay.")
-      if (!std::randomize(rst_duration) with {rst_duration inside {[1 : 10]};})
+      if (!std::randomize(rst_duration) with {rst_duration inside {[CLK_PERIOD : 100]};})
         `uvm_fatal("top_tb", "Failed to randomize reset duration.")
 
       #rst_delay ARESETn = 1'b0;
