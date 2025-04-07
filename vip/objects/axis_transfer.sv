@@ -99,6 +99,16 @@ class axis_transfer extends uvm_sequence_item;
   endfunction
 
 
+  function void remove_disabled_sig(axis_config cfg);
+    if (!cfg.TDATA_ENABLE) this.tdata = '0;
+    if (!cfg.TKEEP_ENABLE) this.tkeep = '1;
+    if (!cfg.TSTRB_ENABLE) this.tstrb = '1;
+    if (!cfg.TLAST_ENABLE) this.tlast = '1;
+    if (!cfg.TDEST_ENABLE) this.tdest = '0;
+    if (!cfg.TUSER_ENABLE) this.tuser = '0;
+    if (!cfg.TID_ENABLE) this.tid = '0;
+  endfunction
+
 
   //  Constructor: new
   function new(string name = "axis_transfer");

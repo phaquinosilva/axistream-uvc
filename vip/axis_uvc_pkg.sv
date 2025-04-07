@@ -67,8 +67,10 @@ package axis_uvc_pkg;
   `include "axis_transfer.sv"
   `include "axis_transfer_seq.sv"
   `include "axis_packet_seq.sv"
+  `include "axis_packet.sv"
 
   // Components
+  `include "axis_transfer2packet_subs.sv"
   `include "axis_transfer_seqr.sv"
   `include "axis_driver.sv"
   `include "driver_transmitter.sv"

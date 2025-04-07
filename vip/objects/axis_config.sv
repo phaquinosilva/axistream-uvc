@@ -78,11 +78,11 @@ class axis_config extends uvm_object;
   /* set_options:
   *   - helper function to set flags in the config item.
   */
-  function set_options(port_t device_type = TRANSMITTER, stream_t stream_type = CONT_ALIGNED,
-                       bit use_packets = 1, bit use_frames = 0, bit use_transfers = 0,
-                       bit TDATA_ENABLE = 1, bit TKEEP_ENABLE = (TDATA_WIDTH > 7),
-                       bit TLAST_ENABLE = 1, bit TSTRB_ENABLE = 0, bit TID_ENABLE = 0,
-                       bit TDEST_ENABLE = 0, bit TUSER_ENABLE = 0);
+  function void set_options(port_t device_type = TRANSMITTER, stream_t stream_type = CONT_ALIGNED,
+                            bit use_packets = 1, bit use_frames = 0, bit use_transfers = 0,
+                            bit TDATA_ENABLE = 1, bit TKEEP_ENABLE = (TDATA_WIDTH > 7),
+                            bit TLAST_ENABLE = 1, bit TSTRB_ENABLE = 0, bit TID_ENABLE = 0,
+                            bit TDEST_ENABLE = 0, bit TUSER_ENABLE = 0);
 
     /* UVC configuration */
     this.device_type = device_type;

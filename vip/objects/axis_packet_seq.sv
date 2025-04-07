@@ -138,15 +138,15 @@ class axis_packet_seq extends uvm_sequence #(axis_transfer);
   }
 
   //  Group: Functions
-  function set_stream_type(stream_t stream_type);
+  function void set_stream_type(stream_t stream_type);
     this.stream_type = stream_type;
   endfunction : set_stream_type
 
-  function get_stream_type();
+  function stream_t get_stream_type();
     get_stream_type = stream_type;
   endfunction : get_stream_type
 
-  function set_only_delay(bit mode);
+  function void set_only_delay(bit mode);
     this.only_delay = mode;
     this.only_delay_c.constraint_mode(mode);
     this.stream_t_c.constraint_mode(!mode);

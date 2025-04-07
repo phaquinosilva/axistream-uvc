@@ -75,10 +75,16 @@ class axis_integ_env extends uvm_env;
     super.connect_phase(phase);
     if (m_scbd != null) begin
       foreach (m_agts[i]) begin
-        case (m_agts[i].m_cfg.device_type)
-          TRANSMITTER: m_agts[i].m_mon.transfer_ap.connect(m_scbd.tr_transmitter_ap);
-          RECEIVER: m_agts[i].m_mon.transfer_ap.connect(m_scbd.tr_receiver_ap);
-        endcase
+        if (m_agts[i].m_cfg.use_packets)
+          case (m_agts[i].m_cfg.device_type)
+            TRANSMITTER: m_agts[i].m_trn2pkt_subs.axis_packet_ap.connect(m_scbd.pkt_transmitter_ap);
+            RECEIVER: m_agts[i].m_trn2pkt_subs.axis_packet_ap.connect(m_scbd.pkt_receiver_ap);
+          endcase
+        else
+          case (m_agts[i].m_cfg.device_type)
+            TRANSMITTER: m_agts[i].m_mon.transfer_ap.connect(m_scbd.tr_transmitter_ap);
+            RECEIVER: m_agts[i].m_mon.transfer_ap.connect(m_scbd.tr_receiver_ap);
+          endcase
       end
     end
   endfunction : connect_phase

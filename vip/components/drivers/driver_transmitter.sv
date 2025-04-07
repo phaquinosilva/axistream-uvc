@@ -70,7 +70,6 @@ task axis_driver::drive_transfer_transmitter(axis_transfer item);
 
   repeat (item.delay) @(posedge vif.ACLK);
 
-  // vif_mutex.get(1);
   vif.TVALID = 1'b1;
   vif.TDATA = item.tdata;
   vif.TKEEP = item.tkeep;
@@ -79,7 +78,6 @@ task axis_driver::drive_transfer_transmitter(axis_transfer item);
   vif.TID = item.tlast;
   vif.TDEST = item.tlast;
   vif.TUSER = item.tlast;
-  // vif_mutex.put(1);
 
   // Wait for handshake to complete
   @(negedge vif.ACLK iff (vif.TREADY === 1 && vif.TVALID === 1));

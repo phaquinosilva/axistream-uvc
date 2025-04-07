@@ -69,9 +69,7 @@ task axis_driver::drive_transfer_receiver(axis_transfer item);
 
   // start not ready to receive
   repeat (item.delay) @(posedge vif.ACLK);
-  // vif_mutex.get(1);
   vif.TREADY = 1'b1;
-  // vif_mutex.put(1);
 
   // Wait for handshake to complete
   @(negedge vif.ACLK iff (vif.TREADY === 1 && vif.TVALID === 1));

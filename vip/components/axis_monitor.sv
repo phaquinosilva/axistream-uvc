@@ -13,7 +13,6 @@ class axis_monitor extends uvm_monitor;
 
   //  Group: Components
   vif_t vif;
-  semaphore vif_mutex;
 
   //  Group: Variables
   uvm_analysis_port #(axis_transfer) transfer_ap;
@@ -71,7 +70,6 @@ class axis_monitor extends uvm_monitor;
       if (m_cfg.device_type == RECEIVER) @(handshake);
       else @(posedge vif.ACLK iff (vif.TVALID === 1 && vif.TREADY === 1));
 
-      // vif_mutex.get(1);
       item.tstrb = vif.TSTRB;
       item.tdata = vif.TDATA;
       item.tkeep = vif.TKEEP;
@@ -79,7 +77,6 @@ class axis_monitor extends uvm_monitor;
       item.tdest = vif.TDEST;
       item.tuser = vif.TUSER;
       item.tid = vif.TID;
-      // vif_mutex.put(1);
 
       item.timestamp = $time;
       `uvm_info(report, $sformatf(

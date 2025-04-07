@@ -46,7 +46,7 @@ class axis_smoke_test extends axis_test_base;
   endfunction : build_phase_create_cfg
 
 
-  function randomize_n_samples();
+  function void randomize_n_samples();
     m_env_cfg.num_samples = 10;
     m_env_cfg.seq_size = 10;
     m_env_cfg.fixed_seq_size = 1;
@@ -60,8 +60,8 @@ class axis_smoke_test extends axis_test_base;
       - Randomizes a sequence.
       - Constraints should be set here.
   */
-  function randomize_seq(int i, ref axis_config agt_config, ref axis_transfer_seq tseq,
-                         ref axis_packet_seq pseq, int seq_size);
+  function void randomize_seq(int i, ref axis_config agt_config, ref axis_transfer_seq tseq,
+                              ref axis_packet_seq pseq, int seq_size);
     if (agt_config.use_transfers) begin
       case (agt_config.device_type)
         RECEIVER: begin

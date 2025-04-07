@@ -12,20 +12,20 @@ class axis_agent extends uvm_agent;
   `uvm_component_utils(axis_agent)
 
   //  Group: Configuration object
-  axis_config        m_cfg           = null;
+  axis_config               m_cfg           = null;
 
   //  Group: Components
-  vif_t              vif;
+  vif_t                     vif;
 
   // Transfer handlers
-  axis_transfer_seqr m_transfer_seqr = null;
-  axis_driver        m_drv           = null;
-  axis_monitor       m_mon           = null;
+  axis_transfer_seqr        m_transfer_seqr = null;
+  axis_transfer2packet_subs m_trn2pkt_subs  = null;
+  axis_driver               m_drv           = null;
+  axis_monitor              m_mon           = null;
 
 
   //  Group: Variables
-  protected string   report_id       = "";
-  static semaphore   vif_mutex;
+  protected string          report_id       = "";
 
 
   //  Group: Functions
@@ -43,19 +43,17 @@ class axis_agent extends uvm_agent;
     if (!uvm_config_db#(axis_config)::get(this, "", "m_cfg", m_cfg))
       `uvm_fatal(report_id, $sformatf("Error to get axis_config for %s", this.get_full_name()))
 
-    // TRANSFER infra
-    // if (m_cfg.device_type == TRANSMITTER) begin
     `uvm_info(report_id, $sformatf("Creating transfer sequencer for '%s'.", this.get_full_name()),
               UVM_MEDIUM)
     m_transfer_seqr = axis_transfer_seqr::type_id::create("m_transfer_seqr", this);
-    // end
 
     // remaining components
     m_drv = axis_driver::type_id::create("m_drv", this);
     m_mon = axis_monitor::type_id::create("m_mon", this);
-    vif_mutex = new(1);
-    m_drv.vif_mutex = vif_mutex;
-    m_mon.vif_mutex = vif_mutex;
+
+    // packet infra
+    if (m_cfg.use_packets)
+      m_trn2pkt_subs = axis_transfer2packet_subs::type_id::create("m_trn2pkt_subs", this);
 
     `uvm_info(report_id, $sformatf("Finishing build_phase for %s", this.get_full_name()), UVM_LOW)
 
@@ -67,6 +65,9 @@ class axis_agent extends uvm_agent;
     super.connect_phase(phase);
 
     `uvm_info(report_id, $sformatf("Starting connect_phase for %s", this.get_full_name()), UVM_LOW)
+
+    if (m_cfg.use_packets) m_mon.transfer_ap.connect(m_trn2pkt_subs.axis_transfer_imp);
+
     m_drv.seq_item_port.connect(m_transfer_seqr.seq_item_export);
     `uvm_info(report_id, $sformatf("Finishing connect_phase for %s", this.get_full_name()), UVM_LOW)
 

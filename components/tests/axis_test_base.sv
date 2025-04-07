@@ -231,7 +231,7 @@ class axis_test_base extends uvm_component;
       - If sequence
       - Constraints should be set here.
   */
-  virtual function randomize_n_samples();
+  virtual function void randomize_n_samples();
 
     if (m_env_cfg.num_samples == 0)
       if (!m_env_cfg.randomize(num_samples) with {num_samples inside {[2 : 100]};})
@@ -253,8 +253,8 @@ class axis_test_base extends uvm_component;
       - Randomizes a sequence.
       - Constraints should be set here.
   */
-  virtual function randomize_seq(int i, ref axis_config agt_config, ref axis_transfer_seq tseq,
-                                 ref axis_packet_seq pseq, int seq_size);
+  virtual function void randomize_seq(int i, ref axis_config agt_config, ref axis_transfer_seq tseq,
+                                      ref axis_packet_seq pseq, int seq_size);
     `uvm_info("axis_test_base", "started randomize", UVM_NONE)
     if (agt_config.use_transfers) begin
       case (agt_config.device_type)
