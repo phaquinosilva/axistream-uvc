@@ -15,46 +15,33 @@
 */
 task axis_driver::run_phase_transmitter();
   string report_id = $sformatf("%s.run_phase_transmitter", this.report_id);
+  axis_transfer item;
 
   `uvm_info(report_id, "Started run_phase for driver.", UVM_LOW)
 
   forever begin
-    if (vif.ARESETn !== 1) reset_transmitter();
+    if (vif.ARESETn != 1) reset_transmitter();
     fork
-      main_transmitter();
-      @(negedge vif.ARESETn);
-    join
+      begin : DRIVE_ITEM
+        seq_item_port.get_next_item(item);
+        drive_transfer_transmitter(item);
+      end
+      begin : WAIT_RESET
+        @(negedge vif.ARESETn);
+        `uvm_info(report_id, "Captured reset. Starting reset mode.", UVM_NONE)
+      end
+    join_any
     disable fork;
+    seq_item_port.item_done();
   end
 
   `uvm_info(report_id, "Finished run_phase for driver.", UVM_LOW)
 endtask : run_phase_transmitter
 
-
 task axis_driver::reset_transmitter;
   vif.TVALID = 1'b0;
   @(posedge vif.ARESETn);
 endtask : reset_transmitter
-
-
-task axis_driver::main_transmitter;
-  axis_transfer item;
-
-  fork
-    forever begin
-      seq_item_port.get_next_item(item);
-      drive_transfer_transmitter(item);
-      seq_item_port.item_done();
-    end
-    begin : RESET_ITEM
-      @(negedge vif.ARESETn);
-      seq_item_port.item_done();
-    end
-  join_any
-  disable fork;
-
-endtask : main_transmitter
-
 
 /* Task: drive_transfer_transmitter
   Description:

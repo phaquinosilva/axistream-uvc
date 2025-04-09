@@ -69,13 +69,11 @@ class axis_driver extends uvm_driver #(axis_transfer);
 
   // Group: TRANSMITTER methods
   extern task run_phase_transmitter();
-  extern task main_transmitter();
   extern task reset_transmitter();
   extern task drive_transfer_transmitter(axis_transfer item);
 
   // Group: RECEIVER methods
   extern task run_phase_receiver();
-  extern task main_receiver();
   extern task reset_receiver();
   extern task drive_transfer_receiver(axis_transfer item);
 

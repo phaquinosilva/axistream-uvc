@@ -10,7 +10,7 @@
 `define AXI_FIFO_TEST 
 
 // Conditional compile on reset interruptions
-// `define RST_TEST 
+`define RST_TEST 
 
 
 module top_tb;
@@ -117,10 +117,11 @@ module top_tb;
         `uvm_fatal("top_tb", "Failed to randomize reset duration.")
 
       #rst_delay ARESETn = 1'b0;
-      #rst_duration ARESETn = 1'b1;
+      #rst_duration;
+      // Deassertion must be synchronous
+      @(posedge ACLK) ARESETn = 1'b1;
     end
 `endif
-
   end
 
   initial begin
