@@ -1,3 +1,9 @@
+//==============================================================================
+// Project: AXI-Stream VIP
+//==============================================================================
+// Filename: axis_packet.sv
+// Description: This file comprises the packet uvm_object for the AXI-Stream VIP.
+//==============================================================================
 `ifndef axis_packet__sv
 `define axis_packet__sv
 

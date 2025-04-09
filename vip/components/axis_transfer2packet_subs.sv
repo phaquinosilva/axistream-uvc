@@ -1,3 +1,10 @@
+//==============================================================================
+// Project: AXI-Stream VIP
+//==============================================================================
+// Filename: axis_trnasfer2packet_subs.sv
+// Description: This file comprises the transfer2packet subscriber 
+// for the AXI-Stream VIP.
+//==============================================================================
 `ifndef axis_transfer2packet_subs__sv
 `define axis_transfer2packet_subs__sv
 

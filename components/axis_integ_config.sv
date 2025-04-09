@@ -1,3 +1,9 @@
+//==============================================================================
+// Project: axis VIP
+//==============================================================================
+// Filename: axis_integ_config.sv
+// Description: This file comprises the config object for the axis integration env.
+//==============================================================================
 `ifndef axis_integ_config__sv
 `define axis_integ_config__sv
 

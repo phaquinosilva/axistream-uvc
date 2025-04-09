@@ -7,10 +7,10 @@
 `include "axis_if.sv"
 
 // Conditional compile on DUT instantiation
-`define AXI_FIFO_TEST 
+// `define AXI_FIFO_TEST 
 
 // Conditional compile on reset interruptions
-`define RST_TEST 
+// `define RST_TEST 
 
 
 module top_tb;

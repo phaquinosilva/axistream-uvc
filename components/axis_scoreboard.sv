@@ -1,3 +1,9 @@
+//==============================================================================
+// Project: axis VIP
+//==============================================================================
+// Filename: axis_scoreboard.sv
+// Description: This file comprises the scoreboard for the axis integration env.
+//==============================================================================
 `ifndef axis_scoreboard__sv
 `define axis_scoreboard__sv
 
