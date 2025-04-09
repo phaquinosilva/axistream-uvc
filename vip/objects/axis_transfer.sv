@@ -66,6 +66,7 @@ class axis_transfer extends uvm_sequence_item;
   */
   string                                  miscompares = "";
 
+
   // Utils
   `uvm_object_utils_begin(axis_transfer)
     `uvm_field_int(tdata, UVM_NOCOMPARE | UVM_HEX)

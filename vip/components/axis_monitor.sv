@@ -16,6 +16,7 @@ class axis_monitor extends uvm_monitor;
 
   //  Group: Variables
   uvm_analysis_port #(axis_transfer) transfer_ap;
+
   axis_config m_cfg;
 
   string report_id = "";
@@ -47,10 +48,9 @@ class axis_monitor extends uvm_monitor;
 
     forever begin
       @(posedge vif.ARESETn iff (vif.ARESETn === 1));
-
       fork
         main_monitor();
-        @(negedge vif.ARESETn iff (vif.ARESETn === 0));
+        @(negedge vif.ARESETn);
       join_any
       disable fork;
     end

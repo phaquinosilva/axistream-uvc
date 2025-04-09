@@ -20,9 +20,14 @@ class axis_integ_config extends uvm_object;
   protected axis_config axis_config_obj[];
 
   /* has_scoreboard
-    - Flag to indicate Whether scoreboard will be created or not.
+    - Flag to indicate Whether scoreboard will be created.
   */
   bit has_scoreboard = 0;
+
+  /* coverage_enable
+    - Flag to indicate whether coverage model will be instantiated.
+  */
+  bit coverage_enable = 0;
 
   /* fixed_seq_size
     - Flag to indicate whether the packet size should be fixed or randomized.

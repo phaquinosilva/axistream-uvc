@@ -55,7 +55,6 @@ class axis_transfer2packet_subs extends uvm_subscriber #(axis_transfer);
     `uvm_info(report_id, $sformatf("Received transfer:\n%s", t.sprint()), UVM_DEBUG)
 
     if (!this.ongoing) ongoing = 1;
-
     this.transfers.push_back(t);
     if (t.tlast == 1) publish_packet();
   endfunction : write
@@ -79,6 +78,7 @@ class axis_transfer2packet_subs extends uvm_subscriber #(axis_transfer);
       pkt.transfers.push_back(trn);
     end
     pkt.extract_data(m_cfg);
+    pkt.set_stream_type(m_cfg.stream_type);
 
     this.ongoing = 0;
     axis_packet_ap.write(pkt);
@@ -86,7 +86,6 @@ class axis_transfer2packet_subs extends uvm_subscriber #(axis_transfer);
 
 
   //  Group: Tasks
-
   function new(string name = "axis_transfer2packet_subs", uvm_component parent);
     super.new(name, parent);
 

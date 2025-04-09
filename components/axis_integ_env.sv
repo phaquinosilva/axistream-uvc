@@ -10,12 +10,13 @@ class axis_integ_env extends uvm_env;
 
   //  Group: Components
   axis_scoreboard m_scbd = null;
+  axis_cov_collector m_cov = null;
   axis_agent m_agts[];
-
-  vif_t vifs[];
 
   //  Group: Variables
   string report_id = "";
+
+  vif_t vifs[];
 
   //  Group: Functions
 
@@ -39,6 +40,7 @@ class axis_integ_env extends uvm_env;
 
     `uvm_info(report, "Allocated m_agts and vifs in env", UVM_NONE)
 
+
     foreach (m_agts[i]) begin
       string agt_id = $sformatf("m_agts[%1d]", i);
       m_agts[i] = axis_agent::type_id::create(agt_id, this);
@@ -61,30 +63,62 @@ class axis_integ_env extends uvm_env;
 
         m_scbd.m_cfg_transmitter = m_agts[0].m_cfg.device_type == TRANSMITTER ? m_agts[0].m_cfg : m_agts[1].m_cfg;
         m_scbd.m_cfg_receiver = m_agts[1].m_cfg.device_type == RECEIVER ? m_agts[1].m_cfg : m_agts[1].m_cfg;
-
       end else begin
         `uvm_fatal(report, "Component axis_scoreboard only works with 2 agents.")
       end
     end
+
+    if (m_cfg.coverage_enable) begin
+      m_cov = axis_cov_collector::type_id::create("m_cov", this);
+      uvm_config_db#(axis_integ_config)::set(this, "m_cov", "m_cfg", m_cfg);
+      foreach (vifs[i])
+      uvm_config_db#(vif_t)::set(this, "m_cov", $sformatf("vifs[%0d]", i), vifs[i]);
+    end
+
 
     `uvm_info(report, $sformatf("Finishing build_phase for %s", this.get_full_name()), UVM_NONE)
   endfunction : build_phase
 
 
   function void connect_phase(uvm_phase phase);
+    string report_id = $sformatf("%s.connect_phase", report_id);
     super.connect_phase(phase);
+    // Setup scoreboard with or without subscriber
     if (m_scbd != null) begin
       foreach (m_agts[i]) begin
-        if (m_agts[i].m_cfg.use_packets)
-          case (m_agts[i].m_cfg.device_type)
-            TRANSMITTER: m_agts[i].m_trn2pkt_subs.axis_packet_ap.connect(m_scbd.pkt_transmitter_ap);
-            RECEIVER: m_agts[i].m_trn2pkt_subs.axis_packet_ap.connect(m_scbd.pkt_receiver_ap);
-          endcase
-        else
-          case (m_agts[i].m_cfg.device_type)
-            TRANSMITTER: m_agts[i].m_mon.transfer_ap.connect(m_scbd.tr_transmitter_ap);
-            RECEIVER: m_agts[i].m_mon.transfer_ap.connect(m_scbd.tr_receiver_ap);
-          endcase
+        // Connect subscriber if using packets
+        case (m_agts[i].m_cfg.device_type)
+          TRANSMITTER: begin
+            if (m_agts[i].m_cfg.use_packets)
+              m_agts[i].m_trn2pkt_subs.axis_packet_ap.connect(m_scbd.pkt_transmitter_ap);
+            else m_agts[i].m_mon.transfer_ap.connect(m_scbd.tr_transmitter_ap);
+          end
+          RECEIVER: begin
+            if (m_agts[i].m_cfg.use_packets)
+              m_agts[i].m_trn2pkt_subs.axis_packet_ap.connect(m_scbd.pkt_receiver_ap);
+            else m_agts[i].m_mon.transfer_ap.connect(m_scbd.tr_receiver_ap);
+          end
+          default: `uvm_fatal(report_id, "Unsupported device type.")
+        endcase
+      end
+    end
+
+    // Setup coverage collector
+    if (m_cfg.coverage_enable) begin
+      foreach (m_agts[i]) begin
+        case (m_agts[i].m_cfg.device_type)
+          TRANSMITTER: begin
+            if (m_agts[i].m_cfg.use_packets)
+              m_agts[i].m_trn2pkt_subs.axis_packet_ap.connect(m_cov.pkt_transmitter_imp);
+            else m_agts[i].m_mon.transfer_ap.connect(m_cov.tr_transmitter_imp);
+          end
+          RECEIVER: begin
+            if (m_agts[i].m_cfg.use_packets)
+              m_agts[i].m_trn2pkt_subs.axis_packet_ap.connect(m_cov.pkt_receiver_imp);
+            else m_agts[i].m_mon.transfer_ap.connect(m_cov.tr_receiver_imp);
+          end
+          default: `uvm_fatal(report_id, "Unsupported device type.")
+        endcase
       end
     end
   endfunction : connect_phase

@@ -49,7 +49,7 @@ class axis_transfer_seq extends uvm_sequence #(axis_transfer);
     }
   }
 
-  function set_only_delay(bit mode);
+  function void set_only_delay(bit mode);
     this.only_delay = mode;
     this.only_delay_c.constraint_mode(mode);
   endfunction

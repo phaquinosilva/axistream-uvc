@@ -12,11 +12,13 @@ export VIP_INTEG=$(dirname -- $(readlink -fn -- "$0"))
 echo "PARENT: $CURRENT_PATH"
 
 seed=$(((RANDOM % 999999999 )  + 100000000))
-echo "Running seed: $seed"
 
+echo "Running seed: $seed"
 VERBOSITY="+UVM_VERBOSITY=UVM_MEDIUM"
+
 TEST="axis_smoke_test"
 # TEST="axis_test_base"
+
 GUI=""
 
 if [ $1 ]; then
@@ -33,4 +35,5 @@ fi
 xrun -lwdgen \
   -linedebu -access rwc -uvm -uvmhome $UVMHOME \
   -svseed $seed -sv -f file_list.f \
+  -coverage all \
   +UVM_TESTNAME=${TEST} ${VERBOSITY} ${GUI} 

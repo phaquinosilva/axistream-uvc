@@ -4,23 +4,24 @@
 class axis_packet extends uvm_object;
 
   //  Group: Variables
-  axis_transfer                            transfers  [ $];
+  axis_transfer                        transfers  [ $];
 
-  protected bit      [    TDATA_WIDTH-1:0] valid_data [];
-  protected stream_t                       stream_type      = SPARSE;
+  bit            [    TDATA_WIDTH-1:0] valid_data [];
+  stream_t                             stream_type      = SPARSE;
 
 
-  protected bit      [    TDATA_WIDTH-1:0] p_data     [];
-  protected bit      [(TDATA_WIDTH/8)-1:0] p_keep     [];
-  protected bit      [(TDATA_WIDTH/8)-1:0] p_strb     [];
-  protected bit      [  (TID_WIDTH/8)-1:0] tid;
-  protected bit      [(TUSER_WIDTH/8)-1:0] tuser;
-  protected bit      [(TDEST_WIDTH/8)-1:0] tdest;
-  protected time                           timestamps [];
+  protected bit  [    TDATA_WIDTH-1:0] p_data     [];
+  protected bit  [(TDATA_WIDTH/8)-1:0] p_keep     [];
+  protected bit  [(TDATA_WIDTH/8)-1:0] p_strb     [];
+  protected bit  [  (TID_WIDTH/8)-1:0] tid;
+  protected bit  [(TUSER_WIDTH/8)-1:0] tuser;
+  protected bit  [(TDEST_WIDTH/8)-1:0] tdest;
+  protected time                       timestamps [];
 
+  int                                  size             = 0;
 
   // for the do_compare method
-  string                                   miscompares      = "";
+  string                               miscompares      = "";
 
   `uvm_object_utils_begin(axis_packet)
     `uvm_field_array_int(p_data, UVM_DEFAULT | UVM_HEX)
@@ -51,7 +52,10 @@ class axis_packet extends uvm_object;
     tid   = transfers[0].tid;
     tuser = transfers[0].tuser;
     tdest = transfers[0].tdest;
+  endfunction : extract_data
 
+
+  function void get_valid_data();
     /*
     // Get valid data in transfer
     if (cfg.TDATA_ENABLE) begin
@@ -67,16 +71,15 @@ class axis_packet extends uvm_object;
       // all bytes are valid
     end
     */
-
-  endfunction : extract_data
-
-  function void get_valid_data();
   endfunction : get_valid_data
 
-  function void get_stream_type();
+
+  function stream_t get_stream_type();
+    get_stream_type = this.stream_type;
   endfunction : get_stream_type
 
-  function void set_stream_type();
+  function void set_stream_type(stream_t stream_type);
+    this.stream_type = stream_type;
   endfunction : set_stream_type
 
 

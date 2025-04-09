@@ -32,6 +32,7 @@ class axis_smoke_test extends axis_test_base;
 
     m_env_cfg = axis_integ_config::type_id::create(.name("m_env_cfg"));
     m_env_cfg.has_scoreboard = 1;
+    m_env_cfg.coverage_enable = 1;
     m_env_cfg.set_agt_configs(2, '{cfg_item_master, cfg_item_slave});
     `uvm_info(
         report_id, $sformatf(
@@ -45,14 +46,14 @@ class axis_smoke_test extends axis_test_base;
 
   endfunction : build_phase_create_cfg
 
-  /*
+
   function void randomize_n_samples();
     m_env_cfg.num_samples = 10;
     m_env_cfg.seq_size = 10;
     m_env_cfg.fixed_seq_size = 1;
     `uvm_info(report_id, $sformatf("Running %0d samples", m_env_cfg.num_samples), UVM_NONE)
-  endfunction : randomize_n_samples 
-  */
+  endfunction : randomize_n_samples
+
 
 
   /* Function: randomize seq
@@ -63,17 +64,18 @@ class axis_smoke_test extends axis_test_base;
   */
   function void randomize_seq(int i, ref axis_config agt_config, ref axis_transfer_seq tseq,
                               ref axis_packet_seq pseq, int seq_size);
+    `uvm_info("axis_smoke_base", "started randomize", UVM_NONE)
     if (agt_config.use_transfers) begin
       case (agt_config.device_type)
         RECEIVER: begin
-          if (!tseq.randomize() with {delay == 0;})
+          if (!tseq.randomize() with {delay != 0;})
             `uvm_fatal(report_id, "Unable to randomize seq.")
           `uvm_info(report_id, $sformatf(
                     "Randomized transfer for %s \n%s", agt_config.device_type.name, tseq.sprint()),
                     UVM_NONE)
         end  // receiver
         TRANSMITTER: begin
-          if (!tseq.randomize() with {delay == 0;})
+          if (!tseq.randomize() with {delay != 0;})
             `uvm_fatal(report_id, "Unable to randomize tseq.")
           `uvm_info(report_id, $sformatf(
                     "Randomized transfer for %s \n%s", agt_config.device_type.name, tseq.sprint()),
@@ -98,7 +100,7 @@ class axis_smoke_test extends axis_test_base;
         TRANSMITTER: begin
           if (!pseq.randomize() with {
                 size == seq_size;
-                foreach (delays[i]) delays[i] == 0;
+                foreach (delays[i]) delays[i] != 0;
               })
             `uvm_fatal(report_id, "Unable to randomize seq.")
           `uvm_info(report_id, $sformatf(

@@ -18,7 +18,7 @@ class axis_vseq extends uvm_sequence;
   //  Group: Variables
   protected string report_id = "";
 
-  function setup_vseq(axis_config cfg, axis_transfer_seqr seqr);
+  function void setup_vseq(axis_config cfg, axis_transfer_seqr seqr);
     this.m_cfg = cfg;
     this.m_transfer_seqr = seqr;
   endfunction

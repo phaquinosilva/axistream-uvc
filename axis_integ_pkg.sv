@@ -20,13 +20,14 @@ package axis_integ_pkg;
   typedef axis_scoreboard;
   typedef axis_integ_config;
   typedef axis_integ_env;
+  typedef axis_cov_collector;
   typedef axis_test_base;
 
   // Group: UVM Components
   `include "axis_vseq.sv"
   `include "axis_scoreboard.sv"
   `include "axis_integ_config.sv"
-  `include "axis_cov_model.sv"
+  `include "axis_cov_collector.sv"
   `include "axis_integ_env.sv"
 
   // Group: tests

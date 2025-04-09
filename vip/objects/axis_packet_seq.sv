@@ -50,7 +50,6 @@ class axis_packet_seq extends uvm_sequence #(axis_transfer);
   bit                                      only_delay     = 0;
 
 
-  // Utils
   `uvm_object_utils_begin(axis_packet_seq)
     `uvm_field_enum(stream_t, stream_type, UVM_DEFAULT)
     `uvm_field_int(size, UVM_DEFAULT | UVM_DEC)
